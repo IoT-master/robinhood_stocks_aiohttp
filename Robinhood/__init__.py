@@ -10,12 +10,14 @@ from Robinhood.basic_async_api import ApiOperations
 class Robinhood(ApiOperations):
     from Robinhood.authentication import login, \
         respond_to_challenge
+
     from Robinhood.account import get_all_positions, \
         get_open_stock_positions, get_watchlist_by_name, get_dividends, get_total_dividends, \
         get_dividends_by_instrument, get_notifications, get_latest_notification, get_wire_transfers, get_margin_calls, \
         get_linked_bank_accounts, get_bank_account_info, unlink_bank_account, get_bank_transfers, \
         get_stock_loan_payments, get_margin_interest, get_subscription_fees, get_referrals, get_day_trades, \
         get_documents, download_document, load_basic_profile, load_user_profile
+
     from Robinhood.orders import cancel_all_crypto_orders, cancel_all_option_orders, cancel_all_stock_orders, \
         cancel_crypto_order, cancel_option_order, cancel_stock_order, find_stock_orders, get_all_crypto_orders, \
         get_all_open_crypto_orders, get_all_open_option_orders, get_all_open_stock_orders, get_all_option_orders, \
@@ -35,7 +37,8 @@ class Robinhood(ApiOperations):
     from Robinhood.crypto import load_crypto_profile, get_crypto_positions, get_crypto_currency_pairs, get_crypto_info, \
         get_crypto_quote, get_crypto_quote_from_id, get_crypto_historicals
     from Robinhood.export import export_completed_option_orders, export_completed_stock_orders
-    from Robinhood.profiles import load_account_profile
+    from Robinhood.profiles import load_account_profile, load_basic_profile, load_investment_profile, \
+        load_portfolio_profile, load_security_profile, load_user_profile
 
     def __init__(self):
         super(Robinhood, self).__init__()
