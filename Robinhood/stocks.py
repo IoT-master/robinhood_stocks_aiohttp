@@ -376,7 +376,7 @@ async def get_events(self, symbol, info=None):
 
     symbol = symbol.upper().strip()
 
-    payload = {'equity_instrument_id': helper.id_for_stock(symbol)}
+    payload = {'equity_instrument_id': self.id_for_stock(symbol)}
     url = urls.events()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
     return self.filter(data, info)
