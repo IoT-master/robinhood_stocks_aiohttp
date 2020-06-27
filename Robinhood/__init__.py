@@ -8,6 +8,7 @@ from Robinhood.basic_async_api import ApiOperations
 
 
 class Robinhood(ApiOperations):
+
     from Robinhood.authentication import login, \
         respond_to_challenge
 
@@ -34,11 +35,16 @@ class Robinhood(ApiOperations):
         get_instrument_by_url, get_instruments_by_symbols, get_latest_price, get_name_by_symbol, get_name_by_url, \
         get_news, get_popularity, get_pricebook_by_id, get_pricebook_by_symbol, get_quotes, get_ratings, get_splits, \
         get_stock_historicals, get_stock_quote_by_id, get_stock_quote_by_symbol, get_symbol_by_url
+
     from Robinhood.crypto import load_crypto_profile, get_crypto_positions, get_crypto_currency_pairs, get_crypto_info, \
         get_crypto_quote, get_crypto_quote_from_id, get_crypto_historicals
+
     from Robinhood.export import export_completed_option_orders, export_completed_stock_orders
+
     from Robinhood.profiles import load_account_profile, load_basic_profile, load_investment_profile, \
         load_portfolio_profile, load_security_profile, load_user_profile
+
+    from Robinhood.markets import get_currency_pairs, get_markets, get_top_movers
 
     def __init__(self):
         super(Robinhood, self).__init__()
@@ -277,7 +283,7 @@ class Robinhood(ApiOperations):
             else:
                 return none_type
         else:
-            return (data)
+            return data
 
     async def main(self):
         data = await self.login(self)
