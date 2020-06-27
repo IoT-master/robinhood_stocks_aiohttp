@@ -8,7 +8,6 @@ from Robinhood.basic_async_api import ApiOperations
 
 
 class Robinhood(ApiOperations):
-
     from Robinhood.authentication import login, \
         respond_to_challenge
 
@@ -36,6 +35,11 @@ class Robinhood(ApiOperations):
         get_news, get_popularity, get_pricebook_by_id, get_pricebook_by_symbol, get_quotes, get_ratings, get_splits, \
         get_stock_historicals, get_stock_quote_by_id, get_stock_quote_by_symbol, get_symbol_by_url
 
+    from Robinhood.options import find_options_by_expiration, find_options_by_expiration_and_strike, \
+        find_options_by_specific_profitability, find_tradable_options, get_aggregate_positions, \
+        get_all_option_positions, get_chains, get_market_options, get_open_option_positions, get_option_market_data, \
+        get_option_market_data_by_id
+
     from Robinhood.crypto import load_crypto_profile, get_crypto_positions, get_crypto_currency_pairs, get_crypto_info, \
         get_crypto_quote, get_crypto_quote_from_id, get_crypto_historicals
 
@@ -62,7 +66,7 @@ class Robinhood(ApiOperations):
         url = 'https://api.robinhood.com/instruments/'
         payload = {'symbol': symbol}
         data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header, params=payload)
-        return self.filter(data, 'id')
+        return self.data_filter(data, 'id')
 
     async def custom_async_get_wild(self, url, data_type='regular', headers=None, params=None, jsonify_data=True):
         if not jsonify_data:
@@ -252,12 +256,17 @@ class Robinhood(ApiOperations):
             f.write(ujson.dumps(contents, indent=4))
 
     @staticmethod
-    def filter(data, info):
+    def load_from_json(filename):
+        with open(filename, 'r') as f:
+            return ujson.loads(f.read())
+
+    @staticmethod
+    def data_filter(data, info):
         """Takes the data and extracts the value for the keyword that matches info.
 
         :param data: The data returned by request_get.
         :type data: dict or list
-        :param info: The keyword to filter from the data.
+        :param info: The keyword to data_filter from the data.
         :type info: str
         :returns:  A list or string with the values that correspond to the info keyword.
 

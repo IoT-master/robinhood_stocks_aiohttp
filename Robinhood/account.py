@@ -7,7 +7,7 @@ async def get_all_positions(self, info=None):
     """Returns a list containing every position ever traded.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries of key/value pairs for each ticker. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -33,14 +33,14 @@ async def get_all_positions(self, info=None):
     url = urls.positions()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_open_stock_positions(self, info=None):
     """Returns a list of stocks that are currently held.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries of key/value pairs for each ticker. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -67,21 +67,21 @@ async def get_open_stock_positions(self, info=None):
     payload = {'nonzero': 'true'}
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_watchlists(self, info=None):
     """Returns a list of all watchlists that have been created. Everone has a 'default' watchlist.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of the watchlists. Keywords are 'url', 'user', and 'name'.
 
     """
     url = urls.watchlists()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_watchlist_by_name(self, name='Default', info=None):
@@ -89,14 +89,14 @@ async def get_watchlist_by_name(self, name='Default', info=None):
 
     :param name: The name of the watchlist to get data from.
     :type name: Optional[str]
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries that contain the instrument urls and a url that references itself.
 
     """
     url = urls.watchlists(name)
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_dividends(self, info=None):
@@ -104,7 +104,7 @@ async def get_dividends(self, info=None):
     amount, shares of held stock, and date paid.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries of key/value pairs for each divident payment. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -126,7 +126,7 @@ async def get_dividends(self, info=None):
     """
     url = urls.dividends()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_total_dividends(self):
@@ -173,7 +173,7 @@ def get_dividends_by_instrument(instrument, dividend_data):
 async def get_notifications(self, info=None):
     """Returns a list of notifications.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each notification. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -181,7 +181,7 @@ async def get_notifications(self, info=None):
     """
     url = urls.notifications()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_latest_notification(self):
@@ -198,7 +198,7 @@ async def get_latest_notification(self):
 async def get_wire_transfers(self, info=None):
     """Returns a list of wire transfers.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each wire transfer. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -206,7 +206,7 @@ async def get_wire_transfers(self, info=None):
     """
     url = urls.wiretransfers()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_margin_calls(self, symbol=None):
@@ -235,14 +235,14 @@ async def get_margin_calls(self, symbol=None):
 async def get_linked_bank_accounts(self, info=None):
     """Returns all linked bank accounts.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each bank.
 
     """
     url = urls.linked()
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_bank_account_info(self, bank_id, info=None):
@@ -250,7 +250,7 @@ async def get_bank_account_info(self, bank_id, info=None):
 
     :param bank_id: The bank id.
     :type bank_id: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a dictinoary of key/value pairs for the bank. If info parameter is provided, \
     the value of the key that matches info is extracted.
@@ -258,7 +258,7 @@ async def get_bank_account_info(self, bank_id, info=None):
     """
     url = urls.linked(bank_id)
     data = await self.async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def unlink_bank_account(self, bank_id):
@@ -277,7 +277,7 @@ async def unlink_bank_account(self, bank_id):
 async def get_bank_transfers(self, info=None):
     """Returns all bank transfers made for the account.
 
-    :param info: Will filter the results to get a specific value. 'direction' gives if it was deposit or withdrawl.
+    :param info: Will data_filter the results to get a specific value. 'direction' gives if it was deposit or withdrawl.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each transfer. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -285,14 +285,14 @@ async def get_bank_transfers(self, info=None):
     """
     url = urls.banktransfers()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_stock_loan_payments(self, info=None):
     """Returns a list of loan payments.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each payment. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -300,13 +300,13 @@ async def get_stock_loan_payments(self, info=None):
     """
     url = urls.stockloan()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_margin_interest(self, info=None):
     """Returns a list of margin interest.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each interest. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -314,13 +314,13 @@ async def get_margin_interest(self, info=None):
     """
     url = urls.margininterest()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_subscription_fees(self, info=None):
     """Returns a list of subscription fees.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each fee. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -328,13 +328,13 @@ async def get_subscription_fees(self, info=None):
     """
     url = urls.subscription()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_referrals(self, info=None):
     """Returns a list of referrals.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each referral. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -342,13 +342,13 @@ async def get_referrals(self, info=None):
     """
     url = urls.referral()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_day_trades(self, info=None):
     """Returns recent day trades.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each day trade. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -357,13 +357,13 @@ async def get_day_trades(self, info=None):
     account = self.load_account_profile('account_number')
     url = urls.daytrades(account)
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_documents(self, info=None):
     """Returns a list of documents that have been released by Robinhood to the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each document. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -371,7 +371,7 @@ async def get_documents(self, info=None):
     """
     url = urls.documents()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def download_document(self, url, name=None, dirpath=None):
@@ -419,7 +419,7 @@ async def load_basic_profile(self, info=None):
     """
     url = urls.basic_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_investment_profile(self, info=None):
@@ -435,7 +435,7 @@ async def load_investment_profile(self, info=None):
     """
     url = urls.investment_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_portfolio_profile(self, info=None):
@@ -451,7 +451,7 @@ async def load_portfolio_profile(self, info=None):
     """
     url = urls.portfolio_profile()
     data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_security_profile(self, info=None):
@@ -466,7 +466,7 @@ async def load_security_profile(self, info=None):
     """
     url = urls.security_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_user_profile(self, info=None):
@@ -482,4 +482,4 @@ async def load_user_profile(self, info=None):
     """
     url = urls.user_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)

@@ -14,7 +14,7 @@ async def load_account_profile(self, info=None):
     """
     url = urls.account_profile()
     data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_basic_profile(self, info=None):
@@ -30,7 +30,7 @@ async def load_basic_profile(self, info=None):
     """
     url = urls.basic_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_investment_profile(self, info=None):
@@ -46,7 +46,7 @@ async def load_investment_profile(self, info=None):
     """
     url = urls.investment_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_portfolio_profile(self, info=None):
@@ -62,7 +62,7 @@ async def load_portfolio_profile(self, info=None):
     """
     url = urls.portfolio_profile()
     data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_security_profile(self, info=None):
@@ -77,7 +77,7 @@ async def load_security_profile(self, info=None):
     """
     url = urls.security_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def load_user_profile(self, info=None):
@@ -93,4 +93,4 @@ async def load_user_profile(self, info=None):
     """
     url = urls.user_profile()
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)

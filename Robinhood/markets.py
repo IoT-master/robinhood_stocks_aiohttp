@@ -6,7 +6,7 @@ async def get_top_movers(self, direction, info=None):
 
     :param direction: The direction of movement either 'up' or 'down'
     :type direction: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each mover. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -26,13 +26,13 @@ async def get_top_movers(self, direction, info=None):
     payload = {'direction': direction}
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload,
                                             jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_markets(self, info=None):
     """Returns a list of available markets.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each market. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -40,13 +40,13 @@ async def get_markets(self, info=None):
     """
     url = urls.markets()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_currency_pairs(self, info=None):
     """Returns currency pairs
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each currency pair. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -55,4 +55,4 @@ async def get_currency_pairs(self, info=None):
 
     url = urls.currency()
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)

@@ -6,7 +6,7 @@ import Robinhood.urls as urls
 async def get_all_stock_orders(self, info=None):
     """Returns a list of all the orders that have been processed for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -14,14 +14,14 @@ async def get_all_stock_orders(self, info=None):
     """
     url = urls.orders()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_option_orders(self, info=None):
     """Returns a list of all the option orders that have been processed for the account.
 
     :param self:
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -29,13 +29,13 @@ async def get_all_option_orders(self, info=None):
     """
     url = urls.option_orders()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_crypto_orders(self, info=None):
     """Returns a list of all the crypto orders that have been processed for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -43,13 +43,13 @@ async def get_all_crypto_orders(self, info=None):
     """
     url = urls.crypto_orders()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_open_stock_orders(self, info=None):
     """Returns a list of all the orders that are currently open.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -59,13 +59,13 @@ async def get_all_open_stock_orders(self, info=None):
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
 
     data = [item for item in data if item['cancel'] is not None]
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_open_option_orders(self, info=None):
     """Returns a list of all the orders that are currently open.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -75,13 +75,13 @@ async def get_all_open_option_orders(self, info=None):
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
 
     data = [item for item in data if item['cancel_url'] is not None]
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_open_crypto_orders(self, info=None):
     """Returns a list of all the crypto orders that have been processed for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -90,7 +90,7 @@ async def get_all_open_crypto_orders(self, info=None):
     url = urls.crypto_orders()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
     data = [item for item in data if item['cancel_url'] is not None]
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_stock_order_info(self, orderID):

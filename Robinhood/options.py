@@ -4,7 +4,7 @@ import Robinhood.urls as urls
 async def get_aggregate_positions(self, info=None):
     """Collapses all option orders for a stock into a single dictionary.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each order. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -12,13 +12,13 @@ async def get_aggregate_positions(self, info=None):
     """
     url = urls.aggregate()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_market_options(self, info=None):
     """Returns a list of all options.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -26,13 +26,13 @@ async def get_market_options(self, info=None):
     """
     url = urls.option_orders()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_all_option_positions(self, info=None):
     """Returns all option positions ever held for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -40,13 +40,13 @@ async def get_all_option_positions(self, info=None):
     """
     url = urls.option_positions()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_open_option_positions(self, info=None):
     """Returns all open option positions for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for each option. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -55,15 +55,16 @@ async def get_open_option_positions(self, info=None):
     url = urls.option_positions()
     payload = {'nonzero': 'True'}
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
-    return self.filter(data, info)
+    # return self.data_filter(data[0], info)
+    return data
 
 
-async def get_chains(self, symbol, info=None):
+async def get_chains(self, symbol, info='expiration_dates'):
     """Returns the chain information of an option.
 
     :param symbol: The ticker of the stock.
     :type symbol: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a dictionary of key/value pairs for the option. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -76,7 +77,7 @@ async def get_chains(self, symbol, info=None):
         return None
     url = f'https://api.robinhood.com/options/chains/{await self.id_for_chain(symbol)}/'
     data = await self.custom_async_get_wild(url, headers=self.default_header)
-    return self.filter(data, 'expiration_dates')
+    return self.data_filter(data, info)
 
 
 async def find_tradable_options(self, symbol, expiration_date=None, strike_price=None, option_type=None, info=None):
@@ -90,7 +91,7 @@ async def find_tradable_options(self, symbol, expiration_date=None, strike_price
     :type strike_price: str
     :param option_type: Can be either 'call' or 'put' or left blank to get both.
     :type option_type: Optional[str]
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for all calls of the stock. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -113,7 +114,7 @@ async def find_tradable_options(self, symbol, expiration_date=None, strike_price
         payload['type'] = option_type
 
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def find_options_by_expiration_and_strike(self, input_symbols, expiration_date, strike_price,
@@ -124,11 +125,11 @@ async def find_options_by_expiration_and_strike(self, input_symbols, expiration_
     :type input_symbols: str
     :param expiration_date: Represents the expiration date in the format YYYY-MM-DD.
     :type expiration_date: str
-    :param strike_price: Represents the strike price to filter for.
+    :param strike_price: Represents the strike price to data_filter for.
     :type strike_price: str
     :param option_type: Can be either 'call' or 'put' or leave blank to get both.
     :type option_type: Optional[str]
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for all options of the stock that match the search parameters. \
     If info parameter is provided, a list of strings is returned where the strings are the value of the key that matches info.
@@ -153,7 +154,7 @@ async def find_options_by_expiration_and_strike(self, input_symbols, expiration_
 
         data.extend(filtered_options)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def find_options_by_specific_profitability(self, input_symbols, expiration_date=None, strike_price=None,
@@ -177,7 +178,7 @@ async def find_options_by_specific_profitability(self, input_symbols, expiration
     :type profit_floor: int
     :param profit_ceiling: The higher percentage on scale 0 to 1.
     :type profit_ceiling: int
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for all stock option market data. \
     If info parameter is provided, a list of strings is returned where the strings are the value of the key that matches info.
@@ -203,7 +204,7 @@ async def find_options_by_specific_profitability(self, input_symbols, expiration
             if float_value >= profit_floor and float_value <= profit_ceiling:
                 data.append(option)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_option_market_data_by_id(self, id, info=None):
@@ -212,7 +213,7 @@ async def get_option_market_data_by_id(self, id, info=None):
 
     :param id: The id of the stock.
     :type id: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a dictionary of key/value pairs for the stock. \
     If info parameter is provided, the value of the key that matches info is extracted.
@@ -253,7 +254,7 @@ async def get_option_market_data_by_id(self, id, info=None):
             'low_fill_rate_sell_price': ''
         }
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_option_market_data(self, input_symbols, expiration_date, strike_price, option_type, info=None):
@@ -268,7 +269,7 @@ async def get_option_market_data(self, input_symbols, expiration_date, strike_pr
     :type strike_price: str
     :param option_type: Can be either 'call' or 'put'.
     :type option_type: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a dictionary of key/value pairs for the stock. \
     If info parameter is provided, the value of the key that matches info is extracted.
@@ -285,11 +286,11 @@ async def get_option_market_data(self, input_symbols, expiration_date, strike_pr
         market_data = await self.get_option_market_data_by_id(option_id)
         data.append(market_data)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def find_options_by_expiration(self, input_symbols, expiration_date, option_type=None, info=None):
-    """Returns a list of all the option orders that match the seach parameters
+    """Returns a list of all the option orders that match the search parameters
 
     :param input_symbols: The ticker of either a single stock or a list of stocks.
     :type input_symbols: str
@@ -297,7 +298,7 @@ async def find_options_by_expiration(self, input_symbols, expiration_date, optio
     :type expiration_date: str
     :param option_type: Can be either 'call' or 'put' or leave blank to get both.
     :type option_type: Optional[str]
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: Returns a list of dictionaries of key/value pairs for all options of the stock that match the search parameters. \
     If info parameter is provided, a list of strings is returned where the strings are the value of the key that matches info.
@@ -322,4 +323,4 @@ async def find_options_by_expiration(self, input_symbols, expiration_date, optio
 
         data.extend(filtered_options)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)

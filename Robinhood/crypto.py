@@ -21,13 +21,13 @@ async def load_crypto_profile(self, info=None):
     """
     url = urls.crypto_account()
     data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_crypto_positions(self, info=None):
     """Returns crypto positions for the account.
 
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries of key/value pairs for each option. If info parameter is provided, \
     a list of strings is returned where the strings are the value of the key that matches info.
@@ -45,13 +45,13 @@ async def get_crypto_positions(self, info=None):
     """
     url = urls.crypto_holdings()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_crypto_currency_pairs(self, info=None):
     """Gets a list of all the cypto currencies that you can trade.
 
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -70,7 +70,7 @@ async def get_crypto_currency_pairs(self, info=None):
     """
     url = urls.crypto_currency_pairs()
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_crypto_info(self, symbol, info=None):
@@ -78,7 +78,7 @@ async def get_crypto_info(self, symbol, info=None):
 
     :param symbol: The crypto ticker.
     :type symbol: str
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [dict] If info parameter is left as None then will return a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a strings representing the value of the key.
@@ -102,14 +102,14 @@ async def get_crypto_info(self, symbol, info=None):
         data = data[0]
     else:
         data = None
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 async def get_crypto_quote(self, symbol, info=None):
     """Gets information about a crypto including low price, high price, and open price
 
     :param symbol: The crypto ticker.
     :type symbol: str
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [dict] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -129,7 +129,7 @@ async def get_crypto_quote(self, symbol, info=None):
     id = get_crypto_info(symbol, info='id')
     url = urls.crypto_quote(id)
     data = await self.custom_async_get_wild(url, headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_crypto_quote_from_id(self, id, info=None):
@@ -137,7 +137,7 @@ async def get_crypto_quote_from_id(self, id, info=None):
 
     :param id: The id of a crypto.
     :type id: str
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [dict] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -156,7 +156,7 @@ async def get_crypto_quote_from_id(self, id, info=None):
     """
     url = urls.crypto_quote(id)
     data = await self.custom_async_get_wild(url, headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_crypto_historicals(self, symbol, interval='hour', span='week', bounds='24_7', info=None):
@@ -171,7 +171,7 @@ async def get_crypto_historicals(self, symbol, interval='hour', span='week', bou
     :param bound: The times of day to collect data points. 'Regular' is 6 hours a day, 'trading' is 9 hours a day, \
     'extended' is 16 hours a day, '24_7' is 24 hours a day. Default is '24_7'
     :type bound: str
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -218,5 +218,5 @@ async def get_crypto_historicals(self, symbol, interval='hour', span='week', bou
         subitem['symbol'] = cryptoSymbol
         histData.append(subitem)
 
-    return self.filter(histData, info)
+    return self.data_filter(histData, info)
 

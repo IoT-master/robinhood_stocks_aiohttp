@@ -22,7 +22,7 @@ async def get_quotes(self, input_symbols, info=None):
 
     :param input_symbols: May be a single stock ticker or a list of stock tickers.
     :type input_symbols: str or list
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -53,7 +53,7 @@ async def get_quotes(self, input_symbols, info=None):
 
     data = [item for item in data if item is not None]
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_fundamentals(self, input_symbols, info=None):
@@ -62,7 +62,7 @@ async def get_fundamentals(self, input_symbols, info=None):
 
     :param input_symbols: May be a single stock ticker or a list of stock tickers.
     :type input_symbols: str or list
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -106,7 +106,7 @@ async def get_fundamentals(self, input_symbols, info=None):
 
     data = [item for item in data if item is not None]
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_instruments_by_symbols(self, inputSymbols, info=None):
@@ -115,7 +115,7 @@ async def get_instruments_by_symbols(self, inputSymbols, info=None):
 
     :param inputSymbols: May be a single stock ticker or a list of stock tickers.
     :type inputSymbols: str or list
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will a dictionary of key/value pairs for each ticker. \
     Otherwise, it will be a list of strings where the strings are the values of the key that corresponds to info.
@@ -156,7 +156,7 @@ async def get_instruments_by_symbols(self, inputSymbols, info=None):
         if itemData:
             data.append(itemData)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_instrument_by_url(self, url, info=None):
@@ -166,7 +166,7 @@ async def get_instrument_by_url(self, url, info=None):
     :param url: The url of the stock. Can be found in several locations including \
     in the dictionary returned from get_instruments_by_symbols(inputSymbols,info=None)
     :type url: str
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [dict or str] If info parameter is left as None then will return a dictionary of key/value pairs for a specific url. \
     Otherwise, it will be the string value of the key that corresponds to info.
@@ -197,7 +197,7 @@ async def get_instrument_by_url(self, url, info=None):
 
     """
     data = await self.custom_async_get_wild(url, 'regular', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_latest_price(self, inputSymbols, includeExtendedHours=True):
@@ -247,9 +247,9 @@ async def get_name_by_symbol(self, symbol):
     if not data:
         return None
     # If stock doesn't have a simple name attribute then get the full name.
-    filter_stuff = self.filter(data, info='simple_name')
+    filter_stuff = self.data_filter(data, info='simple_name')
     if not filter_stuff or filter_stuff == "":
-        filter_stuff = self.filter(data, info='name')
+        filter_stuff = self.data_filter(data, info='name')
     return filter_stuff
 
 
@@ -267,9 +267,9 @@ async def get_name_by_url(self, url):
     if not data:
         return None
     # If stock doesn't have a simple name attribute then get the full name.
-    filter_stuff = self.filter(data, info='simple_name')
+    filter_stuff = self.data_filter(data, info='simple_name')
     if not filter_stuff or filter_stuff == "":
-        filter_stuff = self.filter(data, info='name')
+        filter_stuff = self.data_filter(data, info='name')
     return filter_stuff
 
 
@@ -284,7 +284,7 @@ async def get_symbol_by_url(self, url):
 
     """
     data = await self.custom_async_get_wild(url, headers=self.default_header)
-    return self.filter(data, info='symbol')
+    return self.data_filter(data, info='symbol')
 
 
 @convert_none_to_string
@@ -293,7 +293,7 @@ async def get_ratings(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to contain a dictionary of values that correspond to the key that matches info. \
+    :param info: Will data_filter the results to contain a dictionary of values that correspond to the key that matches info. \
     Possible values are summary, ratings, and instrument_id
     :type info: Optional[str]
     :returns: [dict] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
@@ -319,7 +319,7 @@ async def get_ratings(self, symbol, info=None):
             oldText = item['text']
             item['text'] = oldText.encode('UTF-8')
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 @convert_none_to_string
@@ -328,7 +328,7 @@ async def get_popularity(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to be a string value.
+    :param info: Will data_filter the results to be a string value.
     :type info: Optional[str]
     :returns: [dict] If the info parameter is provided, then the function will extract the value of the key \
     that matches the info parameter. Otherwise, the whole dictionary is returned.
@@ -341,7 +341,7 @@ async def get_popularity(self, symbol, info=None):
 
     url = urls.popularity(symbol)
     data = await self.custom_async_get_wild(url, headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_events(self, symbol, info=None):
@@ -351,7 +351,7 @@ async def get_events(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] If the info parameter is provided, then the function will extract the value of the key \
     that matches the info parameter. Otherwise, the whole dictionary is returned.
@@ -379,7 +379,7 @@ async def get_events(self, symbol, info=None):
     payload = {'equity_instrument_id': self.id_for_stock(symbol)}
     url = urls.events()
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_earnings(self, symbol, info=None):
@@ -387,7 +387,7 @@ async def get_earnings(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries. If info parameter is provided, \
     a list of strings is returned where the strings are the value \
@@ -406,7 +406,7 @@ async def get_earnings(self, symbol, info=None):
     url = urls.earnings()
     payload = {'symbol': symbol}
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_news(self, symbol, info=None):
@@ -414,7 +414,7 @@ async def get_news(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to get a specific value.
+    :param info: Will data_filter the results to get a specific value.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries. If info parameter is provided, \
     a list of strings is returned where the strings are the value \
@@ -440,7 +440,7 @@ async def get_news(self, symbol, info=None):
     symbol = symbol.upper().strip()
     url = urls.news(symbol)
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_splits(self, symbol, info=None):
@@ -448,7 +448,7 @@ async def get_splits(self, symbol, info=None):
 
     :param symbol: The stock ticker.
     :type symbol: str
-    :param info: Will filter the results to get a specific value. Possible options are \
+    :param info: Will data_filter the results to get a specific value. Possible options are \
     url, instrument, execution_date, divsor, and multiplier.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries. If info parameter is provided, \
@@ -465,7 +465,7 @@ async def get_splits(self, symbol, info=None):
     symbol = symbol.upper().strip()
     url = urls.splits(symbol)
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def find_instrument_data(self, query):
@@ -522,7 +522,7 @@ async def get_stock_historicals(self, inputSymbols, interval='hour', span='week'
     :type span: Optional[str]
     :param bounds: Represents if graph will include extended trading hours or just regular trading hours. Values are 'extended' or 'regular'. Default is 'regular'
     :type bounds: Optional[str]
-    :param info: Will filter the results to have a list of the values that correspond to key that matches info.
+    :param info: Will data_filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] Returns a list of dictionaries where each dictionary is for a different time. If multiple stocks are provided \
     the historical data is listed one after another.
@@ -581,7 +581,7 @@ async def get_stock_quote_by_id(self, stock_id, info=None):
 
     :param stock_id: robinhood stock id
     :type stock_id: str
-    :param info: Will filter the results to get a specific value. Possible options are url, instrument, execution_date, \
+    :param info: Will data_filter the results to get a specific value. Possible options are url, instrument, execution_date, \
     divsor, and multiplier.
     :type info: Optional[str]
     :return: [dict] If the info parameter is provided, then the function will extract the value of the key \
@@ -605,7 +605,7 @@ async def get_stock_quote_by_id(self, stock_id, info=None):
     url = urls.marketdata_quotes(stock_id)
     data = await self.custom_async_get_wild(url, headers=self.default_header)
 
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_stock_quote_by_symbol(self, symbol, info=None):
@@ -614,7 +614,7 @@ async def get_stock_quote_by_symbol(self, symbol, info=None):
 
     :param symbol: robinhood stock id
     :type stock_id: str
-    :param info: Will filter the results to get a specific value. Possible options are url, instrument, execution_date, \
+    :param info: Will data_filter the results to get a specific value. Possible options are url, instrument, execution_date, \
     divsor, and multiplier.
     :type info: Optional[str]
     :return: [dict] If the info parameter is provided, then the function will extract the value of the key \
@@ -645,7 +645,7 @@ async def get_pricebook_by_id(self, stock_id, info=None):
 
     :param stock_id: robinhood stock id
     :type stock_id: str
-    :param info: Will filter the results to get a specific value. Possible options are url, instrument, execution_date, \
+    :param info: Will data_filter the results to get a specific value. Possible options are url, instrument, execution_date, \
     divsor, and multiplier.
     :type info: Optional[str]
     :return: Returns a dictionary of asks and bids.
@@ -653,7 +653,7 @@ async def get_pricebook_by_id(self, stock_id, info=None):
     """
     url = urls.marketdata_pricebook(stock_id)
     data = await self.custom_async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return self.filter(data, info)
+    return self.data_filter(data, info)
 
 
 async def get_pricebook_by_symbol(self, symbol):
@@ -662,7 +662,7 @@ async def get_pricebook_by_symbol(self, symbol):
 
     :param symbol: symbol id
     :type symbol: str
-    :param info: Will filter the results to get a specific value. Possible options are url, instrument, execution_date, \
+    :param info: Will data_filter the results to get a specific value. Possible options are url, instrument, execution_date, \
     divsor, and multiplier.
     :type info: Optional[str]
     :return: Returns a dictionary of asks and bids.
