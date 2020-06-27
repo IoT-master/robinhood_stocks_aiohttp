@@ -17,11 +17,11 @@ def convert_none_to_string(func):
     return string_wrapper
 
 
-async def get_quotes(self, inputSymbols, info=None):
+async def get_quotes(self, input_symbols, info=None):
     """Takes any number of stock tickers and returns information pertaining to its price.
 
-    :param inputSymbols: May be a single stock ticker or a list of stock tickers.
-    :type inputSymbols: str or list
+    :param input_symbols: May be a single stock ticker or a list of stock tickers.
+    :type input_symbols: str or list
     :param info: Will filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
@@ -43,11 +43,11 @@ async def get_quotes(self, inputSymbols, info=None):
                       * instrument
 
     """
-    symbols = self.inputs_to_set(inputSymbols)
+    symbols = self.inputs_to_set(input_symbols)
     url = urls.quotes()
     payload = {'symbols': ','.join(symbols)}
 
-    data = await self.custom_async_get_wild(url, 'results', headers=self.default_header)
+    data = await self.custom_async_get_wild(url, 'results', headers=self.default_header, params=payload)
     if data is not None or data == [None]:
         return data
 
@@ -56,12 +56,12 @@ async def get_quotes(self, inputSymbols, info=None):
     return self.filter(data, info)
 
 
-async def get_fundamentals(self, inputSymbols, info=None):
+async def get_fundamentals(self, input_symbols, info=None):
     """Takes any number of stock tickers and returns fundamental information
     about the stock such as what sector it is in, a description of the company, dividend yield, and market cap.
 
-    :param inputSymbols: May be a single stock ticker or a list of stock tickers.
-    :type inputSymbols: str or list
+    :param input_symbols: May be a single stock ticker or a list of stock tickers.
+    :type input_symbols: str or list
     :param info: Will filter the results to have a list of the values that correspond to key that matches info.
     :type info: Optional[str]
     :returns: [list] If info parameter is left as None then the list will contain a dictionary of key/value pairs for each ticker. \
@@ -92,7 +92,7 @@ async def get_fundamentals(self, inputSymbols, info=None):
                       * symbol
 
     """
-    symbols = self.inputs_to_set(inputSymbols)
+    symbols = self.inputs_to_set(input_symbols)
     url = urls.fundamentals()
     payload = {'symbols': ','.join(symbols)}
     data = await self.custom_async_get_wild(url, 'results', headers=self.default_header, params=payload)
@@ -563,17 +563,16 @@ async def get_stock_historicals(self, inputSymbols, interval='hour', span='week'
                'bounds': bounds}
     data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
 
-    if data == None or data == [None]:
-        return data
-
-    histData = []
-    for count, item in enumerate(data):
-        stockSymbol = item['symbol']
-        for subitem in item['historicals']:
-            subitem['symbol'] = stockSymbol
-            histData.append(subitem)
-
-    return self.filter(histData, info)
+    hist_data = []
+    for index, items in enumerate(data):
+        temp_dict = {}
+        for each in items:
+            if each['symbol'] in temp_dict:
+                temp_dict[each['symbol']].append(each['historicals'])
+            else:
+                temp_dict[each['symbol']] = [each['historicals']]
+        hist_data.append(temp_dict)
+    return hist_data
 
 
 async def get_stock_quote_by_id(self, stock_id, info=None):

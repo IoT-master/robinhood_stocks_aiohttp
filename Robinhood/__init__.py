@@ -44,7 +44,7 @@ class Robinhood(ApiOperations):
         if not jsonify_data:
             res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=False)
             return res
-        res = await self.async_get_wild(url, headers=headers, jsonify_data=True)
+        res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=True)
         if data_type == 'results':
             return res['results']
         elif data_type == 'pagination':
@@ -52,7 +52,7 @@ class Robinhood(ApiOperations):
             count = 0
             if 'next' in res:
                 while res['next']:
-                    res = await self.async_get_wild(res['next'], jsonify_data=True)
+                    res = await self.async_get_wild(res['next'], headers=headers, params=params, jsonify_data=True)
                     count += 1
                     assert count < 100
                     if 'results' in res:
