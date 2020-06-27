@@ -1,20 +1,140 @@
-from Robinhood.helper import ApiOperations
-
-import jwt
 import random
 from datetime import datetime, timedelta
+
+import jwt
 import ujson
+
+from Robinhood.basic_async_api import ApiOperations
 
 
 class Robinhood(ApiOperations):
-    from Robinhood.authentication import login, custom_async_get_wild, \
-        respond_to_challenge, id_for_chain, id_for_group, id_for_stock, id_for_option
+    from Robinhood.authentication import login, \
+        respond_to_challenge
     from Robinhood.account import get_all_positions, \
-        get_open_stock_positions, get_watchlist_by_name
+        get_open_stock_positions, get_watchlist_by_name, get_dividends, get_total_dividends, \
+        get_dividends_by_instrument, get_notifications, get_latest_notification, get_wire_transfers, get_margin_calls, \
+        get_linked_bank_accounts, get_bank_account_info, unlink_bank_account, get_bank_transfers, \
+        get_stock_loan_payments, get_margin_interest, get_subscription_fees, get_referrals, get_day_trades, \
+        get_documents, download_document, load_basic_profile, load_user_profile
     from Robinhood.orders import get_all_option_orders
+    from Robinhood.stocks import get_quotes, get_fundamentals, get_instruments_by_symbols, get_instrument_by_url, \
+        get_latest_price, get_name_by_symbol, get_name_by_url, get_symbol_by_url, get_ratings, get_popularity, \
+        get_events, get_earnings, get_news, get_splits, find_instrument_data, get_stock_historicals, \
+        get_stock_quote_by_id, get_stock_quote_by_symbol, get_pricebook_by_id, get_pricebook_by_symbol
 
     def __init__(self):
         super(Robinhood, self).__init__()
+
+    async def id_for_stock(self, symbol):
+        """Takes a stock ticker and returns the instrument id associated with the stock.
+
+        :param symbol: The symbol to get the id for.
+        :type symbol: str
+        :returns:  A string that represents the stocks instrument id.
+
+        """
+        symbol = symbol.upper().strip()
+
+        url = 'https://api.robinhood.com/instruments/'
+        payload = {'symbol': symbol}
+        data = await self.custom_async_get_wild(url, 'indexzero', headers=self.default_header, params=payload)
+        return self.filter(data, 'id')
+
+    async def custom_async_get_wild(self, url, data_type='regular', headers=None, params=None, jsonify_data=True):
+        if not jsonify_data:
+            res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=False)
+            return res
+        res = await self.async_get_wild(url, headers=headers, jsonify_data=True)
+        if data_type == 'results':
+            return res['results']
+        elif data_type == 'pagination':
+            data = [res['results']]
+            count = 0
+            if 'next' in res:
+                while res['next']:
+                    res = await self.async_get_wild(res['next'], jsonify_data=True)
+                    count += 1
+                    assert count < 100
+                    if 'results' in res:
+                        for item in res['results']:
+                            data.append(item)
+            return data
+        elif data_type == 'indexzero':
+            data = res['results'][0]
+            return data
+        else:
+            return res
+
+    async def id_for_chain(self, symbol):
+        """Takes a stock ticker and returns the chain id associated with a stocks option.
+
+        :param symbol: The symbol to get the id for.
+        :type symbol: str
+        :returns:  A string that represents the stocks options chain id.
+
+        """
+        try:
+            symbol = symbol.upper().strip()
+        except AttributeError as message:
+            print(message)
+            return (None)
+
+        payload = {'symbol': symbol}
+        url = 'https://api.robinhood.com/instruments/'
+        data = await self.async_get_wild(url, headers=self.default_header, params=payload, jsonify_data=True)
+        return data['results'][0]['tradable_chain_id']
+
+    async def id_for_group(self, symbol):
+        """Takes a stock ticker and returns the id associated with the group.
+
+        :param symbol: The symbol to get the id for.
+        :type symbol: str
+        :returns:  A string that represents the stocks group id.
+
+        """
+        try:
+            symbol = symbol.upper().strip()
+        except AttributeError as message:
+            print(message)
+            return (None)
+
+        url = f'https://api.robinhood.com/options/chains/{await self.id_for_chain(symbol)}/'
+        data = await self.async_get_wild(url, headers=self.default_header, jsonify_data=True)
+        return data['underlying_instruments'][0]['id']
+
+    async def id_for_option(self, symbol, expiration_date, strike, option_type):
+        """Returns the id associated with a specific option order.
+
+        :param symbol: The symbol to get the id for.
+        :type symbol: str
+        :param expiration_date: The expiration date as YYYY-MM-DD
+        :type expiration_date: str
+        :param strike: The strike price.
+        :type strike: str
+        :param option_type: Either call or put.
+        :type option_type: str
+        :returns:  A string that represents the stocks option id.
+
+        """
+        symbol = symbol.upper()
+
+        payload = {
+            'chain_symbol': symbol,
+            'expiration_date': expiration_date,
+            'strike_price': strike,
+            'type': option_type,
+            'state': 'active'
+        }
+        url = 'https://api.robinhood.com/options/instruments/'
+        data = await self.custom_async_get_wild(url, 'pagination', params=payload)
+
+        list_of_options = [item for item in data if item["expiration_date"] == expiration_date]
+        if len(list_of_options) == 0:
+            print(
+                'Getting the option ID failed. Perhaps the expiration date is wrong format, or the strike price is wrong.')
+            return None
+
+        return list_of_options[0]['id']
 
     @staticmethod
     def generate_device_token():
@@ -142,14 +262,5 @@ class Robinhood(ApiOperations):
             return (data)
 
     async def main(self):
-        # data = await self.login()
-        data = testy()
+        data = await self.login(self)
         print(data)
-
-
-if __name__ == '__main__':
-    def testy():
-        return 'hi'
-
-
-    ins = Robinhood()

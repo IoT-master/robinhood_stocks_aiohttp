@@ -1,38 +1,11 @@
 import getpass
 import pickle
-
 from pathlib import Path
 
 import multidict
 import ujson
 
 import Robinhood.urls as urls
-
-
-async def custom_async_get_wild(self, url, data_type='regular', headers=None, params=None, jsonify_data=True):
-    if not jsonify_data:
-        res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=False)
-        return res
-    res = await self.async_get_wild(url, headers=headers, jsonify_data=True)
-    if data_type == 'results':
-        return res['results']
-    elif data_type == 'pagination':
-        data = [res['results']]
-        count = 0
-        if 'next' in res:
-            while res['next']:
-                res = await self.async_get_wild(res['next'], jsonify_data=True)
-                count += 1
-                assert count < 100
-                if 'results' in res:
-                    for item in res['results']:
-                        data.append(item)
-        return data
-    elif data_type == 'indexzero':
-        data = res['results'][0]
-        return data
-    else:
-        return res
 
 
 async def login(self, username=None, password=None, expires_in=86400, scope='internal', by_sms=True,
@@ -186,92 +159,4 @@ async def respond_to_challenge(self, challenge_id, sms_code):
     return resp
 
 
-async def id_for_stock(self, symbol):
-    """Takes a stock ticker and returns the instrument id associated with the stock.
 
-    :param symbol: The symbol to get the id for.
-    :type symbol: str
-    :returns:  A string that represents the stocks instrument id.
-
-    """
-
-    symbol = symbol.upper().strip()
-
-    url = 'https://api.robinhood.com/instruments/'
-    payload = {'symbol': symbol}
-    data = await self.async_get_wild(url, 'indexzero', payload, jsonify_data=True)
-    return filter(data, 'id')
-
-
-async def id_for_chain(self, symbol):
-    """Takes a stock ticker and returns the chain id associated with a stocks option.
-
-    :param symbol: The symbol to get the id for.
-    :type symbol: str
-    :returns:  A string that represents the stocks options chain id.
-
-    """
-    try:
-        symbol = symbol.upper().strip()
-    except AttributeError as message:
-        print(message)
-        return (None)
-
-    payload = {'symbol': symbol}
-    url = 'https://api.robinhood.com/instruments/'
-    data = await self.async_get_wild(url, headers=self.default_header, params=payload, jsonify_data=True)
-    return data['results'][0]['tradable_chain_id']
-
-
-async def id_for_group(self, symbol):
-    """Takes a stock ticker and returns the id associated with the group.
-
-    :param symbol: The symbol to get the id for.
-    :type symbol: str
-    :returns:  A string that represents the stocks group id.
-
-    """
-    try:
-        symbol = symbol.upper().strip()
-    except AttributeError as message:
-        print(message)
-        return (None)
-
-    url = f'https://api.robinhood.com/options/chains/{await self.id_for_chain(symbol)}/'
-    data = await self.async_get_wild(url, headers=self.default_header, jsonify_data=True)
-    return data['underlying_instruments'][0]['id']
-
-
-async def id_for_option(self, symbol, expiration_date, strike, option_type):
-    """Returns the id associated with a specific option order.
-
-    :param symbol: The symbol to get the id for.
-    :type symbol: str
-    :param expiration_date: The expiration date as YYYY-MM-DD
-    :type expiration_date: str
-    :param strike: The strike price.
-    :type strike: str
-    :param option_type: Either call or put.
-    :type option_type: str
-    :returns:  A string that represents the stocks option id.
-
-    """
-    symbol = symbol.upper()
-
-    payload = {
-        'chain_symbol': symbol,
-        'expiration_date': expiration_date,
-        'strike_price': strike,
-        'type': option_type,
-        'state': 'active'
-    }
-    url = 'https://api.robinhood.com/options/instruments/'
-    data = await self.custom_async_get_wild(url, 'pagination', params=payload)
-
-    list_of_options = [item for item in data if item["expiration_date"] == expiration_date]
-    if len(list_of_options) == 0:
-        print(
-            'Getting the option ID failed. Perhaps the expiration date is wrong format, or the strike price is wrong.')
-        return None
-
-    return list_of_options[0]['id']
