@@ -16,11 +16,26 @@ class Robinhood(ApiOperations):
         get_linked_bank_accounts, get_bank_account_info, unlink_bank_account, get_bank_transfers, \
         get_stock_loan_payments, get_margin_interest, get_subscription_fees, get_referrals, get_day_trades, \
         get_documents, download_document, load_basic_profile, load_user_profile
-    from Robinhood.orders import get_all_option_orders
-    from Robinhood.stocks import get_quotes, get_fundamentals, get_instruments_by_symbols, get_instrument_by_url, \
-        get_latest_price, get_name_by_symbol, get_name_by_url, get_symbol_by_url, get_ratings, get_popularity, \
-        get_events, get_earnings, get_news, get_splits, find_instrument_data, get_stock_historicals, \
-        get_stock_quote_by_id, get_stock_quote_by_symbol, get_pricebook_by_id, get_pricebook_by_symbol
+    from Robinhood.orders import cancel_all_crypto_orders, cancel_all_option_orders, cancel_all_stock_orders, \
+        cancel_crypto_order, cancel_option_order, cancel_stock_order, find_stock_orders, get_all_crypto_orders, \
+        get_all_open_crypto_orders, get_all_open_option_orders, get_all_open_stock_orders, get_all_option_orders, \
+        get_all_stock_orders, get_crypto_order_info, get_option_order_info, get_stock_order_info, order, \
+        order_buy_crypto_by_price, order_buy_crypto_by_quantity, order_buy_crypto_limit, order_buy_fractional_by_price, \
+        order_buy_fractional_by_quantity, order_buy_limit, order_buy_market, order_buy_option_limit, \
+        order_buy_option_stop_limit, order_buy_stop_limit, order_buy_stop_loss, order_option_credit_spread, \
+        order_option_debit_spread, order_option_spread, order_sell_crypto_by_price, order_sell_crypto_by_quantity, \
+        order_sell_crypto_limit, order_sell_fractional_by_price, order_sell_fractional_by_quantity, order_sell_limit, \
+        order_sell_market, order_sell_option_limit, order_sell_option_stop_limit, order_sell_stop_limit, \
+        order_sell_stop_loss
+
+    from Robinhood.stocks import find_instrument_data, get_earnings, get_events, get_fundamentals, \
+        get_instrument_by_url, get_instruments_by_symbols, get_latest_price, get_name_by_symbol, get_name_by_url, \
+        get_news, get_popularity, get_pricebook_by_id, get_pricebook_by_symbol, get_quotes, get_ratings, get_splits, \
+        get_stock_historicals, get_stock_quote_by_id, get_stock_quote_by_symbol, get_symbol_by_url
+    from Robinhood.crypto import load_crypto_profile, get_crypto_positions, get_crypto_currency_pairs, get_crypto_info, \
+        get_crypto_quote, get_crypto_quote_from_id, get_crypto_historicals
+    from Robinhood.export import export_completed_option_orders, export_completed_stock_orders
+    from Robinhood.profiles import load_account_profile
 
     def __init__(self):
         super(Robinhood, self).__init__()
