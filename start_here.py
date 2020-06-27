@@ -13,6 +13,8 @@ class Usage(Robinhood):
         self.save_to_json_dict('senhmo.json', data)
         data2 = open_option_positions_filter(data)
         self.save_to_json_dict('senhmo2.json', data2)
+        await self.get_option_detail_from_position_filter(data2)
+        self.save_to_json_dict('senhmo3.json', data2)
 
 
 

@@ -12,7 +12,7 @@ def historical_filter(data, key_word='begins_at', value_word='open_price'):
 
 
 def open_option_positions_filter(data, key_word='chain_symbol',
-                                 value_word=['average_price', 'quantity', 'type', 'option']):
+                                 value_word=['average_price', 'quantity', 'type', 'option_id']):
     stock_diff = {}
     for empty_index in data:
         for each_stock_section in empty_index:
@@ -22,3 +22,9 @@ def open_option_positions_filter(data, key_word='chain_symbol',
             else:
                 stock_diff[key_word_value].append(dict(map(lambda x: (x, each_stock_section[x]), value_word)))
     return stock_diff
+
+
+async def get_option_detail_from_position_filter(self, oop_filter):
+    for ticker_name in oop_filter:
+        for index, each_item in enumerate(oop_filter[ticker_name]):
+            oop_filter[ticker_name][index]['option_details'] = await self.get_option_market_data_by_id(each_item['option_id'])
