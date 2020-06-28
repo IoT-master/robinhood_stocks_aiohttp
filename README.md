@@ -84,11 +84,13 @@ git clone https://github.com/IoT-master/robinhood_stocks_aiohttp
 ```sh
 pip3 install -r requirements.txt
 ```
-3. Inherit Robinhood class and use main() as your entries into the async. See start_here.py as example
+3. Inherit Robinhood class and override main() as your entry into the async. See start_here.py as example. Instantiate your new class and customize to your situation. 
 ```py
 class Usage(Robinhood):
     async def main(self):
         do_something(...)
+
+instance = Usage()
 ```
 
 

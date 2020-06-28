@@ -50,7 +50,9 @@ class Robinhood(ApiOperations):
 
     from Robinhood.markets import get_currency_pairs, get_markets, get_top_movers
 
-    from Robinhood.custom import get_option_detail_from_position_filter
+    from Robinhood.custom import get_option_detail_from_position_filter, \
+        get_option_detail_from_current_option_positions, historical_filter, open_option_positions_filter, \
+        display_current_status_of_stock_list
 
     def __init__(self):
         super(Robinhood, self).__init__()
