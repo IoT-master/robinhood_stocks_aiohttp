@@ -5,5 +5,6 @@ chardet==3.0.4
 idna==2.9
 multidict==4.7.6
 PyJWT==1.7.1
+tqdm==4.47.0
 ujson==3.0.0
 yarl==1.4.2

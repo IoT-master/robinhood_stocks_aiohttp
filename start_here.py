@@ -1,12 +1,17 @@
 from Robinhood import Robinhood
+from tqdm import tqdm
 
 
 class Usage(Robinhood):
 
     async def main(self):
         await self.login()
-        data = await self.get_all_positions()
-        self.save_to_json('senhmo4.json', data)
+        # data = await self.get_watchlist_by_name()
+        # stock_ticker_list = await self.get_list_of_instruments(data)
+        # self.save_to_json('senhmo.json', stock_ticker_list)
+        stock_ticker_list = self.load_from_json('senhmo.json')
+        await self.display_current_status_of_stock_list_once(stock_ticker_list)
+
 
 
 if __name__ == '__main__':
