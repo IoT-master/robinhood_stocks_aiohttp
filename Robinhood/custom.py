@@ -46,6 +46,11 @@ async def get_option_detail_from_position_filter(self, oop_filter):
 
 
 async def get_option_detail_from_current_option_positions(self):
+    """
+    This API returns all the OPEN option positions that you have and associates it with a ticker symbols
+    :param self:
+    :return: A dict with with OPEN option positions with the corresponding ticker symbols
+    """
     data = await self.get_open_option_positions()
     oop_filter = self.open_option_positions_filter(data, key_word='chain_symbol',
                                                    value_word=['average_price', 'quantity', 'type', 'option_id'])
@@ -120,7 +125,7 @@ async def display_current_status_of_stock_list_once(self, stock_list):
             f"{each_ticker.rjust(8, ' ')}: bid: {stats['bid']:10.2f}, ask: {stats['ask']:10.2f}, last {stats['last']:9.2f}, real_last:{stats['extended']:10.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.3f}")
 
 
-async def get_list_of_instruments(self, response_body):
+async def get_list_of_instruments2(self, response_body):
     stock_ticker_list = []
     for each_position in tqdm(response_body[0]):
         stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
@@ -129,10 +134,21 @@ async def get_list_of_instruments(self, response_body):
     return stock_ticker_list
 
 
+async def get_list_of_instruments(self, response_body):
+    stock_ticker_dict = {}
+    for each_position in tqdm(response_body[0]):
+        stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
+        each_position['ticker'] = stock_ticker
+        stock_ticker_dict[stock_ticker] = {'average_buy_price': each_position['average_buy_price'],
+                                           'quantity': each_position['quantity']
+                                           }
+    return stock_ticker_dict
+
+
 async def get_stock_positions_from_account(self):
     data = await self.get_open_stock_positions()
-    stock_ticker_list = await self.get_list_of_instruments(data)
-    return stock_ticker_list, data
+    stock_ticker_dict = await self.get_list_of_instruments(data)
+    return stock_ticker_dict, data
 
 
 async def get_all_holdings_from_account(self):
