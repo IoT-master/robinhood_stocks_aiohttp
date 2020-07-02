@@ -1,6 +1,4 @@
 from Robinhood import Robinhood
-from tqdm import tqdm
-
 
 class Usage(Robinhood):
 

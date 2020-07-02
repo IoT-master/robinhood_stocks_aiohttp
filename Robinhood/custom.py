@@ -1,7 +1,8 @@
 import os
+from math import log
 from subprocess import call
 from time import sleep
-from math import log
+
 from tqdm import tqdm
 
 
@@ -78,17 +79,21 @@ async def display_current_status_of_stock_list(self, stock_list, sleep_time=.5):
         for each_ticker in data_to_screen:
             stats = data_to_screen[each_ticker]
             print(
-                f"{each_ticker:4}: bid: {stats['bid']:8.2f}, ask: {stats['ask']:8.2f}, last {stats['last']:8.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.2f}")
+                f"{each_ticker.rjust(20, '*')}: bid: {stats['bid']:8.2f}, ask: {stats['ask']:8.2f}, last {stats['last']:8.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.2f}")
         sleep(sleep_time)
         self.clear_screen()
 
 
 async def display_current_status_of_stock_list_once(self, stock_list):
-    def calc_stock_percentage(old, new):
-        if new < old:
-            return -(1 - new / old) * 100
+    def calc_stock_percentage(old, new, extend_new):
+        if extend_new:
+            up_change = float(extend_new)
         else:
-            return (new / old - 1) * 100
+            up_change = new
+        if up_change < old:
+            return -(1 - up_change / old) * 100
+        else:
+            return (up_change / old - 1) * 100
 
     data = await self.get_quotes(stock_list)
     data_to_screen = dict(map(lambda x: (x['symbol'], {'bid': float(x['bid_price']),
@@ -99,16 +104,20 @@ async def display_current_status_of_stock_list_once(self, stock_list):
                                                        'trading': x['trading_halted'],
                                                        'percent': calc_stock_percentage(
                                                            float(x['adjusted_previous_close']),
-                                                           float(x['last_trade_price'])),
+                                                           float(x['last_trade_price']),
+                                                           x['last_extended_hours_trade_price']),
                                                        'dB': 0 if (float(x['last_trade_price'])) / float(
                                                            x['adjusted_previous_close']) == 0 else log(
                                                            (float(x['last_trade_price'])) / float(
-                                                               x['adjusted_previous_close']))
+                                                               x['adjusted_previous_close'])),
+                                                       'extended': float(x['last_extended_hours_trade_price']) if x[
+                                                           'last_extended_hours_trade_price'] else float(
+                                                           x['last_trade_price'])
                                                        }), data))
     for each_ticker in data_to_screen:
         stats = data_to_screen[each_ticker]
         print(
-            f"{each_ticker:4}: bid: {stats['bid']:9.2f}, ask: {stats['ask']:9.2f}, last {stats['last']:9.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.2f}")
+            f"{each_ticker.rjust(8, ' ')}: bid: {stats['bid']:10.2f}, ask: {stats['ask']:10.2f}, last {stats['last']:9.2f}, real_last:{stats['extended']:10.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.3f}")
 
 
 async def get_list_of_instruments(self, response_body):
