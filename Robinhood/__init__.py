@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import jwt
 import ujson
+from math import log
 
 from Robinhood.basic_async_api import ApiOperations
 
@@ -172,17 +173,26 @@ class Robinhood(ApiOperations):
 
     @staticmethod
     def filtering_options_body(each_option_owned, option_details, option_description):
+        def calc_option_percentage(old, new):
+            if new < old:
+                return -(1 - new / old) * 100
+            else:
+                return (new / old - 1) * 100
+
+        def calc_option_db(old, new):
+            return log(new/old)
+
         return {
-            'quantity': each_option_owned['quantity'],
+            'quantity': float(each_option_owned['quantity']),
             'created_at': each_option_owned['created_at'],
-            'average_price': each_option_owned['average_price'],
+            'average_price': float(each_option_owned['average_price']),
             'option_id': each_option_owned['option_id'],
             'adjusted_mark_price': option_details['adjusted_mark_price'],
             'ask_price': option_details['ask_price'],
             'ask_size': option_details['ask_size'],
             'bid_price': option_details['bid_price'],
             'bid_size': option_details['bid_size'],
-            'mark_price': option_details['mark_price'],
+            'mark_price': float(option_details['mark_price']),
             'previous_close_price': option_details['previous_close_price'],
             'chance_of_profit_long': option_details['chance_of_profit_long'],
             'chance_of_profit_short': option_details['chance_of_profit_short'],
@@ -194,10 +204,12 @@ class Robinhood(ApiOperations):
             'vega': option_details['vega'],
             'expiration_date': option_description['expiration_date'],
             'state': option_description['state'],
-            'strike_price': option_description['strike_price'],
+            'strike_price': float(option_description['strike_price']),
             'type': option_description['type'],
             'sellout_datetime': option_description['sellout_datetime'],
-            'instrument_id': option_details['instrument']
+            'instrument_id': option_details['instrument'],
+            'percent_gain': calc_option_percentage(float(each_option_owned['average_price']), float(option_details['adjusted_mark_price'])*100),
+            'dB': calc_option_db(float(each_option_owned['average_price']), float(option_details['adjusted_mark_price'])*100)
         }
 
     @staticmethod

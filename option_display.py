@@ -8,11 +8,20 @@ class Usage(Robinhood):
         await self.login()
         while True:
             options_dict = await self.get_option_positions_from_account()
-            for each_ticker in options_dict:
-                stats = options_dict[each_ticker]
-                print(stats)
-            sleep(2)
+            # options_dict = self.load_from_json('senhmo4.json')
             self.clear_screen()
+            options_list = []
+            for each_ticker in options_dict:
+                for each_option in options_dict[each_ticker]:
+                    each_option['ticker'] = each_ticker
+                    options_list.append(each_option)
+            sorted_options = sorted(
+                options_list, key=lambda x: x['dB'], reverse=True)
+
+            for stats in sorted_options:
+                print(
+                    f"{stats['ticker'].rjust(8, ' ')} {stats['quantity']} Strike {stats['type']}: {stats['strike_price']:10.1f} Profit: {stats['quantity']*(stats['mark_price']*100-stats['average_price']):10.2f} EXP: {stats['expiration_date']} {stats['type']} {stats['dB']:.2f}")
+        sleep(2)
 
 
 if __name__ == '__main__':
