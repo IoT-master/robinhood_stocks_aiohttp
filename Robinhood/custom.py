@@ -125,20 +125,7 @@ async def get_current_status_of_stock_list(self, stock_list):
                                                            'last_extended_hours_trade_price'] else float(
                                                            x['last_trade_price'])
                                                        }), data))
-    # for each_ticker in data_to_screen:
-    #     stats = data_to_screen[each_ticker]
-    #     print(
-    #         f"{each_ticker.rjust(8, ' ')}: bid: {stats['bid']:10.2f}, ask: {stats['ask']:10.2f}, last {stats['last']:9.2f}, real_last:{stats['extended']:10.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.3f}")
     return data_to_screen
-
-
-async def get_list_of_instruments2(self, response_body):
-    stock_ticker_list = []
-    for each_position in tqdm(response_body[0]):
-        stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
-        each_position['ticker'] = stock_ticker
-        stock_ticker_list.append(stock_ticker)
-    return stock_ticker_list
 
 
 async def get_list_of_instruments(self, response_body):
