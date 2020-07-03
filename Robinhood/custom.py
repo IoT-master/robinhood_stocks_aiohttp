@@ -20,7 +20,8 @@ def historical_filter(data, key_word='begins_at', value_word='open_price'):
             stock_name = each_ticker
             for each_item in each_stock_section[each_ticker]:
                 for each2 in each_item:
-                    open_price_list.append({each2[key_word]: each2[value_word]})
+                    open_price_list.append(
+                        {each2[key_word]: each2[value_word]})
             stock_diff[stock_name] = open_price_list
     return stock_diff
 
@@ -32,9 +33,11 @@ def open_option_positions_filter(data, key_word, value_word):
         for each_stock_section in empty_index:
             key_word_value = each_stock_section[key_word]
             if key_word_value not in stock_diff:
-                stock_diff[key_word_value] = [dict(map(lambda x: (x, each_stock_section[x]), value_word))]
+                stock_diff[key_word_value] = [
+                    dict(map(lambda x: (x, each_stock_section[x]), value_word))]
             else:
-                stock_diff[key_word_value].append(dict(map(lambda x: (x, each_stock_section[x]), value_word)))
+                stock_diff[key_word_value].append(
+                    dict(map(lambda x: (x, each_stock_section[x]), value_word)))
     return stock_diff
 
 
@@ -74,7 +77,8 @@ async def display_current_status_of_stock_list(self, stock_list, sleep_time=.5):
                                                            'last': float(x['last_trade_price']),
                                                            'trading': x['trading_halted'],
                                                            'percent': calc_stock_percentage(
-                                                               float(x['adjusted_previous_close']),
+                                                               float(
+                                                                   x['adjusted_previous_close']),
                                                                float(x['last_trade_price'])),
                                                            'dB': 0 if (float(x['last_trade_price'])) / float(
                                                                x['adjusted_previous_close']) == 0 else log(
@@ -89,7 +93,7 @@ async def display_current_status_of_stock_list(self, stock_list, sleep_time=.5):
         self.clear_screen()
 
 
-async def display_current_status_of_stock_list_once(self, stock_list):
+async def get_current_status_of_stock_list(self, stock_list):
     def calc_stock_percentage(old, new, extend_new):
         if extend_new:
             up_change = float(extend_new)
@@ -108,8 +112,10 @@ async def display_current_status_of_stock_list_once(self, stock_list):
                                                        'last': float(x['last_trade_price']),
                                                        'trading': x['trading_halted'],
                                                        'percent': calc_stock_percentage(
-                                                           float(x['adjusted_previous_close']),
-                                                           float(x['last_trade_price']),
+                                                           float(
+                                                               x['adjusted_previous_close']),
+                                                           float(
+                                                               x['last_trade_price']),
                                                            x['last_extended_hours_trade_price']),
                                                        'dB': 0 if (float(x['last_trade_price'])) / float(
                                                            x['adjusted_previous_close']) == 0 else log(
@@ -119,10 +125,11 @@ async def display_current_status_of_stock_list_once(self, stock_list):
                                                            'last_extended_hours_trade_price'] else float(
                                                            x['last_trade_price'])
                                                        }), data))
-    for each_ticker in data_to_screen:
-        stats = data_to_screen[each_ticker]
-        print(
-            f"{each_ticker.rjust(8, ' ')}: bid: {stats['bid']:10.2f}, ask: {stats['ask']:10.2f}, last {stats['last']:9.2f}, real_last:{stats['extended']:10.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.3f}")
+    # for each_ticker in data_to_screen:
+    #     stats = data_to_screen[each_ticker]
+    #     print(
+    #         f"{each_ticker.rjust(8, ' ')}: bid: {stats['bid']:10.2f}, ask: {stats['ask']:10.2f}, last {stats['last']:9.2f}, real_last:{stats['extended']:10.2f}, %: {stats['percent']:6.2f}, dB:{stats['dB']:6.3f}")
+    return data_to_screen
 
 
 async def get_list_of_instruments2(self, response_body):
@@ -140,7 +147,10 @@ async def get_list_of_instruments(self, response_body):
         stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
         each_position['ticker'] = stock_ticker
         stock_ticker_dict[stock_ticker] = {'average_buy_price': each_position['average_buy_price'],
-                                           'quantity': each_position['quantity']
+                                           'quantity': each_position['quantity'],
+                                           'url': each_position['url'],
+                                           'instrument': each_position['instrument'],
+                                           'created_at': each_position['created_at']
                                            }
     return stock_ticker_dict
 
@@ -148,12 +158,28 @@ async def get_list_of_instruments(self, response_body):
 async def get_stock_positions_from_account(self):
     data = await self.get_open_stock_positions()
     stock_ticker_dict = await self.get_list_of_instruments(data)
-    return stock_ticker_dict, data
+    owned_stock_ticker_list = [
+        each_stock_ticker for each_stock_ticker in stock_ticker_dict]
+    owned_stocker_ticker_statii = await self.get_current_status_of_stock_list(owned_stock_ticker_list)
+    for each_stock_ticker in stock_ticker_dict:
+        stock_ticker_dict[each_stock_ticker]['status'] = owned_stocker_ticker_statii[each_stock_ticker]
+
+    return stock_ticker_dict
 
 
-async def get_all_holdings_from_account(self):
+async def get_option_positions_from_account(self):
     data = await self.get_open_option_positions()
-    stock_list = list(set(map(lambda x: x['chain_symbol'], data[0])))
-    options_list, _ = await self.get_stock_positions_from_account()
-    all_stock_list = list(sorted(set(stock_list + options_list)))
-    return all_stock_list
+    options_dict = {}
+    for each_option in tqdm(data[0]):
+        option_id = each_option['option_id']
+        greeks_dict = await self.get_option_market_data_by_id(option_id)
+        instrument_id = greeks_dict['instrument']
+        option_detail = await self.async_get_wild(instrument_id, headers=self.default_header, jsonify_data=True)
+        ticker_symbol = each_option['chain_symbol']
+        if ticker_symbol not in options_dict:
+            options_dict[ticker_symbol] = [self.filtering_options_body(
+                each_option, greeks_dict, option_detail)]
+        else:
+            options_dict[ticker_symbol].append(self.filtering_options_body(
+                each_option, greeks_dict, option_detail))
+    return options_dict

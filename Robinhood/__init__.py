@@ -52,8 +52,8 @@ class Robinhood(ApiOperations):
 
     from Robinhood.custom import get_option_detail_from_position_filter, clear_screen, historical_filter, \
         get_option_detail_from_current_option_positions, historical_filter, open_option_positions_filter, \
-        display_current_status_of_stock_list, get_stock_positions_from_account, get_all_holdings_from_account, \
-        get_list_of_instruments, display_current_status_of_stock_list_once
+        display_current_status_of_stock_list, get_stock_positions_from_account, \
+        get_list_of_instruments, get_current_status_of_stock_list, get_option_positions_from_account
 
     def __init__(self):
         super(Robinhood, self).__init__()
@@ -161,13 +161,44 @@ class Robinhood(ApiOperations):
         url = 'https://api.robinhood.com/options/instruments/'
         data = await self.custom_async_get_wild(url, 'pagination', params=payload)
 
-        list_of_options = [item for item in data if item["expiration_date"] == expiration_date]
+        list_of_options = [
+            item for item in data if item["expiration_date"] == expiration_date]
         if len(list_of_options) == 0:
             print(
                 'Getting the option ID failed. Perhaps the expiration date is wrong format, or the strike price is wrong.')
             return None
 
         return list_of_options[0]['id']
+
+    @staticmethod
+    def filtering_options_body(each_option_owned, option_details, option_description):
+        return {
+            'quantity': each_option_owned['quantity'],
+            'created_at': each_option_owned['created_at'],
+            'average_price': each_option_owned['average_price'],
+            'option_id': each_option_owned['option_id'],
+            'adjusted_mark_price': option_details['adjusted_mark_price'],
+            'ask_price': option_details['ask_price'],
+            'ask_size': option_details['ask_size'],
+            'bid_price': option_details['bid_price'],
+            'bid_size': option_details['bid_size'],
+            'mark_price': option_details['mark_price'],
+            'previous_close_price': option_details['previous_close_price'],
+            'chance_of_profit_long': option_details['chance_of_profit_long'],
+            'chance_of_profit_short': option_details['chance_of_profit_short'],
+            'delta': option_details['delta'],
+            'gamma': option_details['gamma'],
+            'implied_volatility': option_details['implied_volatility'],
+            'rho': option_details['rho'],
+            'theta': option_details['theta'],
+            'vega': option_details['vega'],
+            'expiration_date': option_description['expiration_date'],
+            'state': option_description['state'],
+            'strike_price': option_description['strike_price'],
+            'type': option_description['type'],
+            'sellout_datetime': option_description['sellout_datetime'],
+            'instrument_id': option_details['instrument']
+        }
 
     @staticmethod
     def generate_device_token():
@@ -238,7 +269,8 @@ class Robinhood(ApiOperations):
         if type(input_symbols) is str:
             add_symbol(input_symbols)
         elif type(input_symbols) is list or type(input_symbols) is tuple or type(input_symbols) is set:
-            input_symbols = [comp for comp in input_symbols if type(comp) is str]
+            input_symbols = [
+                comp for comp in input_symbols if type(comp) is str]
             for item in input_symbols:
                 add_symbol(item)
 
