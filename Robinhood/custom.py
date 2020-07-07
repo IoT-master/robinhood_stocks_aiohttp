@@ -133,13 +133,14 @@ async def get_list_of_instruments(self, response_body):
     stock_ticker_dict = {}
     for each_position in tqdm(response_body[0]):
         stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
-        each_position['ticker'] = stock_ticker
-        stock_ticker_dict[stock_ticker] = {'average_buy_price': each_position['average_buy_price'],
-                                           'quantity': each_position['quantity'],
-                                           'url': each_position['url'],
-                                           'instrument': each_position['instrument'],
-                                           'created_at': each_position['created_at']
-                                           }
+        if stock_ticker:
+            each_position['ticker'] = stock_ticker
+            stock_ticker_dict[stock_ticker] = {'average_buy_price': each_position['average_buy_price'],
+                                               'quantity': each_position['quantity'],
+                                               'url': each_position['url'],
+                                               'instrument': each_position['instrument'],
+                                               'created_at': each_position['created_at']
+                                               }
     return stock_ticker_dict
 
 
@@ -155,14 +156,16 @@ async def get_stock_positions_from_account(self):
     return stock_ticker_dict
 
 
-async def get_stock_and_option_positions_from_account(self):
+async def _get_stock_and_option_positions_from_account(self):
+    #TODO Combine to one whole list of instruments
     stock_positions = await self.get_open_stock_positions()
     stock_ticker_dict = await self.get_list_of_instruments(stock_positions)
+    option_positions = await self.get_option_positions_from_account()
+    option_ticker_dict = await self.get_list_of_instruments(option_positions)
     owned_stock_ticker_list = [
         each_stock_ticker for each_stock_ticker in stock_ticker_dict]
     option_positions = await self.get_option_positions_from_account()
-    owned_option_ticker_list = [each_option_ticker for each_option_ticker in option_positions]
-    owned_stock_ticker_list += owned_option_ticker_list
+
     owned_stocker_ticker_statii = await self.get_current_status_of_stock_list(owned_stock_ticker_list)
     for each_stock_ticker in stock_ticker_dict:
         stock_ticker_dict[each_stock_ticker]['status'] = owned_stocker_ticker_statii[each_stock_ticker]
