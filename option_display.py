@@ -21,7 +21,6 @@ class Usage(Robinhood):
             for stats in sorted_options:
                 print(
                     f"{stats['ticker'].rjust(8, ' ')} {stats['quantity']} Strike {stats['type']}: {stats['strike_price']:10.1f} Profit: {stats['quantity']*(stats['mark_price']*100-stats['average_price']):10.2f} EXP: {stats['expiration_date']} {stats['type']} {stats['dB']:.2f}")
-        sleep(2)
 
 
 if __name__ == '__main__':
