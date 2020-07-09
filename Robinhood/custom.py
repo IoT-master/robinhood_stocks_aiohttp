@@ -157,16 +157,18 @@ async def get_stock_positions_from_account(self):
 async def get_option_positions_from_account(self):
     data = await self.get_open_option_positions()
     options_dict = {}
+    ticker_instrument_dict = {}
     for each_option in tqdm(data[0]):
         option_id = each_option['option_id']
         greeks_dict = await self.get_option_market_data_by_id(option_id)
         instrument_id = greeks_dict['instrument']
         option_detail = await self.async_get_wild(instrument_id, headers=self.default_header, jsonify_data=True)
         ticker_symbol = each_option['chain_symbol']
+        ticker_instrument_dict[ticker_symbol] = instrument_id
         if ticker_symbol not in options_dict:
             options_dict[ticker_symbol] = [self.filtering_options_body(
                 each_option, greeks_dict, option_detail)]
         else:
             options_dict[ticker_symbol].append(self.filtering_options_body(
                 each_option, greeks_dict, option_detail))
-    return options_dict
+    return options_dict, ticker_instrument_dict
