@@ -18,7 +18,7 @@ class Usage(Robinhood):
                 profit_per_share = stats['extended'] - average_buy_price
                 db_profit_per_share = log(stats['extended']/average_buy_price)
                 print(
-                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:10.2f}], [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
+                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
             sleep(.5)
 
 
