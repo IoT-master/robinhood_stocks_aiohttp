@@ -28,8 +28,9 @@ class Usage(Robinhood):
             for stats in sorted_options:
                 last_traded_price = float(last_traded_price_dict[stats['ticker']]) if stats['ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * (stats['mark_price'] * 100 - stats['average_price'])
+                position = 'buy ' if stats['quantity'] > 0 else 'sell'
                 print(
-                    f"{stats['ticker'].rjust(8, ' ')} [last_traded_value at {last_traded_price:6.2f}], {stats['quantity']} {stats['type']} at {stats['strike_price']:6.1f} {stats['expiration_date']} [Profit: {profit:10.2f}], [db: {stats['dB']:6.2f}]")
+                    f"{stats['ticker'].rjust(8, ' ')} [last_traded_value at {last_traded_price:6.2f}], {float(stats['adjusted_mark_price']):6.2f} {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:6.1f} {stats['expiration_date']} [Profit: {profit:10.2f}], [db: {stats['dB']:6.2f}] [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}], [rho: {stats['rho']}], [vega: {stats['vega']}]")
 
 
 if __name__ == '__main__':
