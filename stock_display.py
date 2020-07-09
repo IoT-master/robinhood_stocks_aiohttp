@@ -1,5 +1,6 @@
 from Robinhood import Robinhood
 from time import sleep
+from math import log
 
 
 class Usage(Robinhood):
@@ -13,8 +14,11 @@ class Usage(Robinhood):
                 stocks.items(), key=lambda x: x[1]['status']['dB'], reverse=True)
             for k, v in sorted_stocks:
                 stats = v['status']
+                average_buy_price = float(v['average_buy_price'])
+                profit_per_share = stats['extended'] - average_buy_price
+                db_profit_per_share = log(stats['extended']/average_buy_price)
                 print(
-                    f"{k.rjust(8, ' ')}: [abp {float(v['average_buy_price']):10.2f}], [last {stats['last']:9.2f}], [bid: {stats['bid']:10.2f}], [ask: {stats['ask']:10.2f}], [real_last:{stats['extended']:10.2f}], [%: {stats['percent']:6.2f}], [dB:{stats['dB']:6.3f}]")
+                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:10.2f}], [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
             sleep(.5)
 
 
