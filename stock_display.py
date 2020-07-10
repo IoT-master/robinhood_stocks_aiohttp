@@ -12,13 +12,18 @@ class Usage(Robinhood):
             self.clear_screen()
             sorted_stocks = sorted(
                 stocks.items(), key=lambda x: x[1]['status']['dB'], reverse=True)
+            total_value = 0
+            total_daily_profit = 0
             for k, v in sorted_stocks:
                 stats = v['status']
                 average_buy_price = float(v['average_buy_price'])
                 profit_per_share = stats['extended'] - average_buy_price
                 db_profit_per_share = log(stats['extended']/average_buy_price)
+                total_value += average_buy_price * float(v['quantity'])
+                total_daily_profit += float(v['quantity']) * profit_per_share
                 print(
                     f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
+            print(f"Total Profits:{total_value:10.2f} Daily Profits: {total_daily_profit:.2f}")
             sleep(.5)
 
 
