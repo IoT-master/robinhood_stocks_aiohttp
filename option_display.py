@@ -36,8 +36,8 @@ class Usage(Robinhood):
                 total_from_profits += profit
                 total_daily_profit += daily_profit_per_option
                 print(
-                    f"{stats['ticker'].rjust(5, ' ')} [s at {last_traded_price:6.2f}] {float(stats['adjusted_mark_price']):7.2f} {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [TotProfit: {profit:8.2f}], [Daily_Profit: {daily_profit_per_option:7.2f}] [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}] [rho: {stats['rho']}] [vega: {stats['vega']}]")
-            print(f"Total Profits: {total_from_profits:10.2f} Daily Profits: {total_daily_profit:.2f}")
+                    f"{stats['ticker'].rjust(5, ' ')} [Daily_Profit: {daily_profit_per_option:7.2f}] [TotProfit: {profit:8.2f}] [s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}] [rho: {stats['rho']}] [vega: {stats['vega']}]")
+            print("\033[36m" + f"Total Profits: {total_from_profits:10.2f} Daily Profits: {total_daily_profit:.2f}" + "\033[0m")
             sleep(.5)
 
 
