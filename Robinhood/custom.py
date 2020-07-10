@@ -2,6 +2,7 @@ import os
 from math import log
 from subprocess import call
 from time import sleep
+import asyncio
 
 from tqdm import tqdm
 
@@ -155,20 +156,23 @@ async def get_stock_positions_from_account(self):
 
 
 async def get_option_positions_from_account(self):
-    data = await self.get_open_option_positions()
-    options_dict = {}
+    my_option_positions = await self.get_open_option_positions()
+    option_id_list = map(lambda x: x['option_id'], my_option_positions[0])
+    market_data_resp = await asyncio.gather(
+        *(self.get_option_market_data_by_id(option_id) for option_id in option_id_list))
+    options_detail_resp = await asyncio.gather(
+        *(self.async_get_wild(each_market_data['instrument'], headers=self.default_header, jsonify_data=True) for
+          each_market_data in market_data_resp))
+    my_options = {}
     ticker_instrument_dict = {}
-    for each_option in tqdm(data[0]):
-        option_id = each_option['option_id']
-        greeks_dict = await self.get_option_market_data_by_id(option_id)
-        instrument_id = greeks_dict['instrument']
-        option_detail = await self.async_get_wild(instrument_id, headers=self.default_header, jsonify_data=True)
-        ticker_symbol = each_option['chain_symbol']
-        ticker_instrument_dict[ticker_symbol] = instrument_id
-        if ticker_symbol not in options_dict:
-            options_dict[ticker_symbol] = [self.filtering_options_body(
-                each_option, greeks_dict, option_detail)]
+    for my_option_position, market_data, option_details in zip(my_option_positions[0], market_data_resp,
+                                                               options_detail_resp):
+        ticker_symbol = my_option_position['chain_symbol']
+        ticker_instrument_dict[ticker_symbol] = market_data['instrument']
+        if ticker_symbol not in my_options:
+            my_options[ticker_symbol] = [self.filtering_options_body(
+                my_option_position, market_data, option_details)]
         else:
-            options_dict[ticker_symbol].append(self.filtering_options_body(
-                each_option, greeks_dict, option_detail))
-    return options_dict, ticker_instrument_dict
+            my_options[ticker_symbol].append(self.filtering_options_body(
+                my_option_position, market_data, option_details))
+    return my_options, ticker_instrument_dict
