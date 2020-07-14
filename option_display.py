@@ -42,6 +42,7 @@ class Usage(Robinhood):
 
             total_from_profits = 0
             total_daily_profit = 0
+            total_value = 0
             for stats in sorted_options:
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                                                                                    'ticker'] in last_traded_price_dict else 0
@@ -50,10 +51,11 @@ class Usage(Robinhood):
                 daily_profit_per_option = (stats['mark_price'] - float(stats['previous_close_price'])) * 100
                 total_from_profits += profit
                 total_daily_profit += daily_profit_per_option
+                total_value += stats['quantity'] * float(stats['adjusted_mark_price']) * 100
                 print(
                     f"{stats['ticker'].rjust(5, ' ')} {stats['price_change']:5.2f} [Daily_Profit: {daily_profit_per_option:7.2f}] [TotProfit: {profit:8.2f}] [s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}] [rho: {stats['rho']}] [vega: {stats['vega']}]")
             print(
-                "\033[36m" + f"Total Profits: {total_from_profits:10.2f} Daily Profits: {total_daily_profit:.2f}" + "\033[0m")
+                "\033[36m" + f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]" + "\033[0m")
             sleep(.5)
 
 
