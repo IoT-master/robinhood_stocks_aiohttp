@@ -20,7 +20,8 @@ class Usage(Robinhood):
             for each in zip(stock_list, get_quotes_response):
                 # For Option Names that are NOT Stock Ticker Symbols anymore
                 if each[1]:
-                    last_traded_price_dict[each[0]] = float(each[1]['last_trade_price'])
+                    last_traded_price_dict[each[0]] = float(each[1]['last_extended_hours_trade_price']) if each[1][
+                        'last_extended_hours_trade_price'] else float(each[1]['last_trade_price'])
                     previous_closed_price_dict[each[0]] = float(each[1]['adjusted_previous_close'])
 
             options_list = []
@@ -29,7 +30,8 @@ class Usage(Robinhood):
                     each_option['ticker'] = each_ticker
                     if each_ticker in last_traded_price_dict:
                         each_option['last_trade_price'] = last_traded_price_dict[each_ticker]
-                        each_option['price_change'] = last_traded_price_dict[each_ticker] - previous_closed_price_dict[each_ticker]
+                        each_option['price_change'] = last_traded_price_dict[each_ticker] - previous_closed_price_dict[
+                            each_ticker]
                     else:
                         each_option['price_change'] = 0
                     options_list.append(each_option)

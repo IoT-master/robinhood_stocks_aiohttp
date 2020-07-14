@@ -81,8 +81,7 @@ async def display_current_status_of_stock_list(self, stock_list, sleep_time=.5):
                                                                float(
                                                                    x['adjusted_previous_close']),
                                                                float(x['last_trade_price'])),
-                                                           'dB': 0 if (float(x['last_trade_price'])) / float(
-                                                               x['adjusted_previous_close']) == 0 else log(
+                                                           'dB': 0 if int(float(x['last_trade_price'])) else log(
                                                                (float(x['last_trade_price'])) / float(
                                                                    x['adjusted_previous_close']))
                                                            }), data))
@@ -118,8 +117,7 @@ async def get_current_status_of_stock_list(self, stock_list):
                                                            float(
                                                                x['last_trade_price']),
                                                            x['last_extended_hours_trade_price']),
-                                                       'dB': 0 if (float(x['last_trade_price'])) / float(
-                                                           x['adjusted_previous_close']) == 0 else log(
+                                                       'dB': 0 if (int(float(x['last_trade_price']))) else log(
                                                            (float(x['last_trade_price'])) / float(
                                                                x['adjusted_previous_close'])),
                                                        'extended': float(x['last_extended_hours_trade_price']) if x[
