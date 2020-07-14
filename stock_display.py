@@ -2,6 +2,7 @@ from Robinhood import Robinhood
 from time import sleep
 from math import log
 
+
 class Usage(Robinhood):
 
     async def main(self):
@@ -17,7 +18,7 @@ class Usage(Robinhood):
                 stats = v['status']
                 average_buy_price = float(v['average_buy_price'])
                 profit_per_share = stats['extended'] - average_buy_price
-                db_profit_per_share = log(stats['extended']/average_buy_price)
+                db_profit_per_share = log(stats['extended'] / average_buy_price)
                 total_value += average_buy_price * float(v['quantity'])
                 total_daily_profit += float(v['quantity']) * (profit_per_share)
                 print(
