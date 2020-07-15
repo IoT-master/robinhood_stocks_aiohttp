@@ -292,10 +292,10 @@ class Robinhood(ApiOperations):
         return symbols_list
 
     @staticmethod
-    def is_token_valid(access_token, minutes_before_exp=30):
+    def is_token_valid(access_token, days_before_exp=1):
         time_stamp = jwt.decode(access_token, verify=False)['exp']
         real_time_stamp = datetime.fromtimestamp(time_stamp)
-        return real_time_stamp - timedelta(minutes=minutes_before_exp) > datetime.now()
+        return real_time_stamp - timedelta(days=days_before_exp) > datetime.now()
 
     @staticmethod
     def save_to_json_dict(filename, contents):

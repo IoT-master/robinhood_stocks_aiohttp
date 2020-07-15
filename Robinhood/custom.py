@@ -2,6 +2,7 @@ import os
 from math import log
 from subprocess import call
 from time import sleep
+import asyncio
 
 from tqdm import tqdm
 
@@ -80,8 +81,7 @@ async def display_current_status_of_stock_list(self, stock_list, sleep_time=.5):
                                                                float(
                                                                    x['adjusted_previous_close']),
                                                                float(x['last_trade_price'])),
-                                                           'dB': 0 if (float(x['last_trade_price'])) / float(
-                                                               x['adjusted_previous_close']) == 0 else log(
+                                                           'dB': 0 if int(float(x['last_trade_price'])) else log(
                                                                (float(x['last_trade_price'])) / float(
                                                                    x['adjusted_previous_close']))
                                                            }), data))
@@ -118,9 +118,9 @@ async def get_current_status_of_stock_list(self, stock_list):
                                                            float(
                                                                x.get('last_extended_hours_trade_price', x['last_trade_price'])),
                                                            x['last_extended_hours_trade_price']),
-                                                       'dB': 0 if (float(x.get('last_extended_hours_trade_price', x['last_trade_price']))) / float(
-                                                           x['adjusted_previous_close']) == 0 else log(
-                                                           (float(x.get('last_extended_hours_trade_price', x['last_trade_price']))) / float(
+                                                       'dB': 0 if (int(float(x['last_trade_price']))) else log(
+                                                           (float(x['last_trade_price'])) / float(
+
                                                                x['adjusted_previous_close'])),
                                                        'extended': float(x['last_extended_hours_trade_price']) if x[
                                                            'last_extended_hours_trade_price'] else float(
@@ -130,17 +130,17 @@ async def get_current_status_of_stock_list(self, stock_list):
 
 
 async def get_list_of_instruments(self, response_body):
+    ticker_list_resp = await asyncio.gather(*(self.get_symbol_by_url(each_position['instrument']) for each_position in response_body[0]))
     stock_ticker_dict = {}
-    for each_position in tqdm(response_body[0]):
-        stock_ticker = await self.get_symbol_by_url(each_position['instrument'])
-        if stock_ticker:
-            each_position['ticker'] = stock_ticker
-            stock_ticker_dict[stock_ticker] = {'average_buy_price': each_position['average_buy_price'],
-                                               'quantity': each_position['quantity'],
-                                               'url': each_position['url'],
-                                               'instrument': each_position['instrument'],
-                                               'created_at': each_position['created_at']
-                                               }
+
+    for ticker, resp in zip(ticker_list_resp, response_body[0]):
+        stock_ticker_dict[ticker] = {
+            'average_buy_price': resp['average_buy_price'],
+            'quantity': resp['quantity'],
+            'url': resp['url'],
+            'instrument': resp['instrument'],
+            'created_at': resp['created_at']
+        }
     return stock_ticker_dict
 
 
@@ -173,18 +173,23 @@ async def _get_stock_and_option_positions_from_account(self):
     return stock_ticker_dict
 
 async def get_option_positions_from_account(self):
-    data = await self.get_open_option_positions()
-    options_dict = {}
-    for each_option in tqdm(data[0]):
-        option_id = each_option['option_id']
-        greeks_dict = await self.get_option_market_data_by_id(option_id)
-        instrument_id = greeks_dict['instrument']
-        option_detail = await self.async_get_wild(instrument_id, headers=self.default_header, jsonify_data=True)
-        ticker_symbol = each_option['chain_symbol']
-        if ticker_symbol not in options_dict:
-            options_dict[ticker_symbol] = [self.filtering_options_body(
-                each_option, greeks_dict, option_detail)]
+    my_option_positions = await self.get_open_option_positions()
+    option_id_list = map(lambda x: x['option_id'], my_option_positions[0])
+    market_data_resp = await asyncio.gather(
+        *(self.get_option_market_data_by_id(option_id) for option_id in option_id_list))
+    options_detail_resp = await asyncio.gather(
+        *(self.async_get_wild(each_market_data['instrument'], headers=self.default_header, jsonify_data=True) for
+          each_market_data in market_data_resp))
+    my_options = {}
+    ticker_instrument_dict = {}
+    for my_option_position, market_data, option_details in zip(my_option_positions[0], market_data_resp,
+                                                               options_detail_resp):
+        ticker_symbol = my_option_position['chain_symbol']
+        ticker_instrument_dict[ticker_symbol] = market_data['instrument']
+        if ticker_symbol not in my_options:
+            my_options[ticker_symbol] = [self.filtering_options_body(
+                my_option_position, market_data, option_details)]
         else:
-            options_dict[ticker_symbol].append(self.filtering_options_body(
-                each_option, greeks_dict, option_detail))
-    return options_dict
+            my_options[ticker_symbol].append(self.filtering_options_body(
+                my_option_position, market_data, option_details))
+    return my_options, ticker_instrument_dict
