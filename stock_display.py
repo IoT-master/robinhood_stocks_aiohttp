@@ -19,7 +19,7 @@ class Usage(Robinhood):
                 stats = v['status']
                 average_buy_price = float(v['average_buy_price'])
                 profit_per_share = stats['extended'] - average_buy_price
-                db_profit_per_share = log(stats['extended'] / average_buy_price)
+                db_profit_per_share = 0 if not int(stats['extended']) else log(stats['extended'] / average_buy_price)
                 total_value += float(v['quantity']) * stats['extended']
                 total_profit += average_buy_price * float(v['quantity'])
                 total_daily_profit += float(v['quantity']) * (stats['extended'] - stats['adjusted_previous_close'])

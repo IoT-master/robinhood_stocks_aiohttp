@@ -2,3 +2,5 @@
 .vscode
 venv
 __pycache__
+confidential/header_states/robinhood.json
+senhmo.json

@@ -1,5 +1,4 @@
 import getpass
-import pickle
 from pathlib import Path
 
 import multidict
@@ -37,8 +36,9 @@ async def login(self, username=None, password=None, expires_in=86400, scope='int
 
     """
     device_token = self.generate_device_token()
-    header_states = Path.cwd().joinpath(f'confidential/header_states/{pickle_file}.json')
-    pickle_path = Path.cwd().joinpath(f'confidential/account_states/{pickle_file}.pickle')
+    header_states = Path.cwd().joinpath(
+        f'confidential/header_states/{pickle_file}.json')
+    # pickle_path = Path.cwd().joinpath(f'confidential/account_states/{pickle_file}.pickle')
     url = urls.login_url()
     payload = {
         'client_id': client_id,
@@ -55,21 +55,20 @@ async def login(self, username=None, password=None, expires_in=86400, scope='int
     # If store_session has been set to false then delete the pickle file, otherwise try to load it.
     # Loading pickle file will fail if the access_token has expired.
     if store_session:
-        recreate_token = False
         if header_states.exists():
             with open(str(header_states), 'r') as header_file:
                 untested_default_header = ujson.load(header_file)
             if 'Authorization' in untested_default_header:
-                access_token = untested_default_header['Authorization'].split(' ')[1]
+                access_token = untested_default_header['Authorization'].split(' ')[
+                    1]
                 if self.is_token_valid(access_token):
-                    self.default_header = multidict.CIMultiDict(untested_default_header)
+                    self.default_header = multidict.CIMultiDict(
+                        untested_default_header)
                     return True
                 else:
                     header_states.unlink()
-                    recreate_token = True
             else:
                 header_states.unlink()
-                recreate_token = True
         # if pickle_path.exists():
         #     with open(str(pickle_path), 'rb') as f:
         #         pickle_data = pickle.load(f)
@@ -120,7 +119,8 @@ async def login(self, username=None, password=None, expires_in=86400, scope='int
                     f"That code was not correct. {res['challenge']['remaining_attempts']} tries remaining. Try Again: ")
                 res = await self.respond_to_challenge(challenge_id, sms_code)
             data = await self.async_post_wild(url, payload,
-                                              headers={'X-ROBINHOOD-CHALLENGE-RESPONSE-ID': challenge_id},
+                                              headers={
+                                                  'X-ROBINHOOD-CHALLENGE-RESPONSE-ID': challenge_id},
                                               jsonify_data=True)
         # Update Session data with authorization or raise exception with the information present in data.
         if 'access_token' in data:
@@ -128,17 +128,19 @@ async def login(self, username=None, password=None, expires_in=86400, scope='int
             self.default_header['Authorization'] = token
             data['detail'] = "logged in with brand new authentication code."
             if store_session:
-                with open(str(pickle_path), 'wb') as f:
-                    pickle.dump({'token_type': data['token_type'],
-                                 'access_token': data['access_token'],
-                                 'refresh_token': data['refresh_token'],
-                                 'device_token': device_token}, f)
+                #     with open(str(pickle_path), 'wb') as f:
+                #         pickle.dump({'token_type': data['token_type'],
+                #                      'access_token': data['access_token'],
+                #                      'refresh_token': data['refresh_token'],
+                #                      'device_token': device_token}, f)
                 with open(str(header_states), 'w') as f:
-                    f.write(ujson.dumps(dict(self.default_header), indent=4, sort_keys=True))
+                    f.write(ujson.dumps(dict(self.default_header),
+                                        indent=4, sort_keys=True))
         else:
             raise Exception(data['detail'])
     else:
-        raise Exception('Error: Trouble connecting to Robinhood API. Check internet connection.')
+        raise Exception(
+            'Error: Trouble connecting to Robinhood API. Check internet connection.')
     return data
 
 
@@ -158,6 +160,3 @@ async def respond_to_challenge(self, challenge_id, sms_code):
     }
     resp = await self.async_post_wild(url, payload, jsonify_data=True)
     return resp
-
-
-

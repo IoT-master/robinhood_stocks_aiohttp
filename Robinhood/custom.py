@@ -131,12 +131,13 @@ async def get_list_of_instruments(self, response_body):
     ticker_list_resp = await asyncio.gather(*(self.get_symbol_by_url(each_position['instrument']) for each_position in response_body[0]))
     stock_ticker_dict = {}
     for ticker, resp in zip(ticker_list_resp, response_body[0]):
-        stock_ticker_dict[ticker] = {'average_buy_price': resp['average_buy_price'],
-                                           'quantity': resp['quantity'],
-                                           'url': resp['url'],
-                                           'instrument': resp['instrument'],
-                                           'created_at': resp['created_at']
-                                           }
+        stock_ticker_dict[ticker] = {
+            'average_buy_price': resp['average_buy_price'],
+            'quantity': resp['quantity'],
+            'url': resp['url'],
+            'instrument': resp['instrument'],
+            'created_at': resp['created_at']
+        }
     return stock_ticker_dict
 
 
