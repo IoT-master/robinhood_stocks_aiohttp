@@ -8,7 +8,7 @@ class Usage(Robinhood):
     async def main(self):
         await self.login()
         while True:
-            stocks = await self.get_stock_and_option_positions_from_account()
+            stocks = await self.get_stock_positions_from_account()
             self.clear_screen()
             sorted_stocks = sorted(
                 stocks.items(), key=lambda x: x[1]['status']['extended'] - float(x[1]['average_buy_price']), reverse=True)

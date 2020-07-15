@@ -54,8 +54,7 @@ class Robinhood(ApiOperations):
     from Robinhood.custom import get_option_detail_from_position_filter, clear_screen, historical_filter, \
         get_option_detail_from_current_option_positions, historical_filter, open_option_positions_filter, \
         display_current_status_of_stock_list, get_stock_positions_from_account, \
-        get_stock_and_option_positions_from_account, \
-        get_list_of_instruments, get_current_status_of_stock_list, get_option_positions_from_account
+        get_list_of_instruments, get_current_status_of_stock_list, get_option_positions_from_account \
 
     def __init__(self):
         super(Robinhood, self).__init__()
