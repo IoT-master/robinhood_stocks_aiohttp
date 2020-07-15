@@ -5,8 +5,8 @@ class Usage(Robinhood):
 
     async def main(self):
         await self.login()
-        watch_list = ['TSLA', 'NIO', 'BA', 'NVDA', 'TNA', 'DOCU', 'ILMN', 'AAPL', 'WORK', 'GNUS', 'SPCE',
-                      'SPHD', 'TEAM', 'RH', 'MSFT', 'COST', 'GOOG', 'GOOGL', 'VMW', 'DELL', 'SPY', 'GS', 'SPWR']
+        watch_list = ['TSLA', 'NIO', 'BA', 'NVDA', 'TNA', 'DOCU', 'ILMN', 'AAPL', 'WORK', 'GNUS', 'SPCE', 'MRNA',
+                      'SPHD', 'TEAM', 'RH', 'MSFT', 'COST', 'GOOG', 'GOOGL', 'VMW', 'DELL', 'SPY', 'GS', 'SPWR', 'DIS']
 
         while True:
             self.clear_screen()

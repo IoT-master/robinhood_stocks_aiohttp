@@ -39,6 +39,7 @@ class Usage(Robinhood):
             # Sort Functionality
             sorted_options = sorted(
                 options_list, key=lambda x: x['price_change'], reverse=True)
+                # options_list, key=lambda x: x['quantity'] * (float(x['adjusted_mark_price']) * 100 - x['average_price']), reverse=True)
 
             total_from_profits = 0
             total_daily_profit = 0
@@ -48,7 +49,7 @@ class Usage(Robinhood):
                                                                                    'ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * (float(stats['adjusted_mark_price']) * 100 - stats['average_price'])
                 position = 'buy ' if stats['quantity'] > 0 else 'sell'
-                daily_profit_per_option = (float(stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
+                daily_profit_per_option = stats['quantity'] * (float(stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
                 total_from_profits += profit
                 total_daily_profit += daily_profit_per_option
                 total_value += stats['quantity'] * float(stats['adjusted_mark_price']) * 100
