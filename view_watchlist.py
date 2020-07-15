@@ -5,13 +5,18 @@ class Usage(Robinhood):
 
     async def main(self):
         await self.login()
-        watch_list = ['LYV', 'TSLA', 'MRNA', 'NIO', 'BA', 'NVDA']
+        watch_list = ['TSLA', 'NIO', 'BA', 'NVDA', 'TNA', 'DOCU', 'ILMN', 'AAPL', 'WORK', 'GNUS', 'SPCE',
+                      'SPHD', 'TEAM', 'RH', 'MSFT', 'COST', 'GOOG', 'GOOGL', 'VMW', 'DELL', 'SPY', 'GS', 'SPWR']
+
         while True:
             self.clear_screen()
             quotes_response = await self.get_quotes(watch_list)
-            # self.save_to_json('senhmo.json', quotes_response)
-            for each_ticker in quotes_response:
-                last_known_price = float(each_ticker['last_extended_hours_trade_price'] if 'last_extended_hours_trade_price' in each_ticker else each_ticker['last_extended_hours_trade_price'])
+            quotes_response = filter(lambda x: x, quotes_response)
+            sorted_stocks = sorted(
+                quotes_response, key=lambda x: (float(x['last_trade_price']) - float(x['previous_close']))/float(x['previous_close']),
+                reverse=True)
+            for each_ticker in sorted_stocks:
+                last_known_price = float(each_ticker['last_trade_price'])
                 bid_price = float(each_ticker['bid_price'])
                 ask_price = float(each_ticker['ask_price'])
                 previous_close = float(each_ticker['previous_close'])
