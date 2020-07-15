@@ -104,7 +104,8 @@ async def get_current_status_of_stock_list(self, stock_list):
         else:
             return (up_change / old - 1) * 100
 
-    data = await self.get_quotes(stock_list)
+    stock_quotes = await self.get_quotes(stock_list)
+    filtered_stock_quotes = filter(lambda x: x, stock_quotes)
     data_to_screen = dict(map(lambda x: (x['symbol'], {'bid': float(x['bid_price']),
                                                        'ask': float(x['ask_price']),
                                                        'adjusted_previous_close': float(
@@ -115,21 +116,23 @@ async def get_current_status_of_stock_list(self, stock_list):
                                                            float(
                                                                x['adjusted_previous_close']),
                                                            float(
-                                                               x['last_trade_price']),
+                                                               x.get('last_extended_hours_trade_price', x['last_trade_price'])),
                                                            x['last_extended_hours_trade_price']),
                                                        'dB': 0 if (int(float(x['last_trade_price']))) else log(
                                                            (float(x['last_trade_price'])) / float(
+
                                                                x['adjusted_previous_close'])),
                                                        'extended': float(x['last_extended_hours_trade_price']) if x[
                                                            'last_extended_hours_trade_price'] else float(
                                                            x['last_trade_price'])
-                                                       }), data))
+                                                       }), filtered_stock_quotes))
     return data_to_screen
 
 
 async def get_list_of_instruments(self, response_body):
     ticker_list_resp = await asyncio.gather(*(self.get_symbol_by_url(each_position['instrument']) for each_position in response_body[0]))
     stock_ticker_dict = {}
+
     for ticker, resp in zip(ticker_list_resp, response_body[0]):
         stock_ticker_dict[ticker] = {
             'average_buy_price': resp['average_buy_price'],
@@ -142,8 +145,8 @@ async def get_list_of_instruments(self, response_body):
 
 
 async def get_stock_positions_from_account(self):
-    data = await self.get_open_stock_positions()
-    stock_ticker_dict = await self.get_list_of_instruments(data)
+    stock_positions = await self.get_open_stock_positions()
+    stock_ticker_dict = await self.get_list_of_instruments(stock_positions)
     owned_stock_ticker_list = [
         each_stock_ticker for each_stock_ticker in stock_ticker_dict]
     owned_stocker_ticker_statii = await self.get_current_status_of_stock_list(owned_stock_ticker_list)
@@ -152,6 +155,22 @@ async def get_stock_positions_from_account(self):
 
     return stock_ticker_dict
 
+
+async def _get_stock_and_option_positions_from_account(self):
+    #TODO Combine to one whole list of instruments
+    stock_positions = await self.get_open_stock_positions()
+    stock_ticker_dict = await self.get_list_of_instruments(stock_positions)
+    option_positions = await self.get_option_positions_from_account()
+    option_ticker_dict = await self.get_list_of_instruments(option_positions)
+    owned_stock_ticker_list = [
+        each_stock_ticker for each_stock_ticker in stock_ticker_dict]
+    option_positions = await self.get_option_positions_from_account()
+
+    owned_stocker_ticker_statii = await self.get_current_status_of_stock_list(owned_stock_ticker_list)
+    for each_stock_ticker in stock_ticker_dict:
+        stock_ticker_dict[each_stock_ticker]['status'] = owned_stocker_ticker_statii[each_stock_ticker]
+
+    return stock_ticker_dict
 
 async def get_option_positions_from_account(self):
     my_option_positions = await self.get_open_option_positions()

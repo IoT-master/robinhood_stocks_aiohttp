@@ -1,9 +1,9 @@
 import random
 from datetime import datetime, timedelta
+from math import log
 
 import jwt
 import ujson
-from math import log
 
 from Robinhood.basic_async_api import ApiOperations
 
@@ -54,6 +54,7 @@ class Robinhood(ApiOperations):
     from Robinhood.custom import get_option_detail_from_position_filter, clear_screen, historical_filter, \
         get_option_detail_from_current_option_positions, historical_filter, open_option_positions_filter, \
         display_current_status_of_stock_list, get_stock_positions_from_account, \
+        get_stock_and_option_positions_from_account, \
         get_list_of_instruments, get_current_status_of_stock_list, get_option_positions_from_account
 
     def __init__(self):
@@ -180,7 +181,7 @@ class Robinhood(ApiOperations):
                 return (new / old - 1) * 100
 
         def calc_option_db(old, new):
-            return log(new/old)
+            return log(new / old)
 
         return {
             'quantity': float(each_option_owned['quantity']),
@@ -208,8 +209,10 @@ class Robinhood(ApiOperations):
             'type': option_description['type'],
             'sellout_datetime': option_description['sellout_datetime'],
             'instrument_id': option_details['instrument'],
-            'percent_gain': calc_option_percentage(float(each_option_owned['average_price']), float(option_details['adjusted_mark_price'])*100),
-            'dB': calc_option_db(float(each_option_owned['average_price']), float(option_details['adjusted_mark_price'])*100)
+            'percent_gain': calc_option_percentage(float(each_option_owned['average_price']),
+                                                   float(option_details['adjusted_mark_price']) * 100),
+            'dB': calc_option_db(float(each_option_owned['average_price']),
+                                 float(option_details['adjusted_mark_price']) * 100)
         }
 
     @staticmethod
