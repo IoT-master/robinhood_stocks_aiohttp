@@ -26,7 +26,7 @@ class Usage(Robinhood):
                         each[1]['last_trade_price'])
                     previous_closed_price_dict[each[0]] = float(
                         each[1]['adjusted_previous_close'])
-                    if 'last_extended_hours_trade_price' in each[1]:
+                    if each[1]['last_extended_hours_trade_price']:
                         last_extended_hours_trade_price_dict[each[0]] = float(
                             each[1]['last_extended_hours_trade_price'])
 
@@ -38,8 +38,9 @@ class Usage(Robinhood):
                         each_option['last_trade_price'] = last_traded_price_dict[each_ticker]
                         each_option['price_change'] = last_traded_price_dict[each_ticker] - previous_closed_price_dict[
                             each_ticker]
-                        each_option['aftermarket_price_change'] = last_extended_hours_trade_price_dict[each_ticker] - \
-                            last_traded_price_dict[each_ticker]
+                        if each_ticker in last_extended_hours_trade_price_dict:
+                            each_option['aftermarket_price_change'] = last_extended_hours_trade_price_dict[each_ticker] - \
+                                last_traded_price_dict[each_ticker]
                     else:
                         each_option['price_change'] = 0
                     options_list.append(each_option)
@@ -73,7 +74,7 @@ class Usage(Robinhood):
                     f"{stats['ticker'].rjust(5, ' ')} {aftermarket_price_change:5.2f} {stats['price_change']:5.2f} [Daily_Profit: {true_daily_profit:7.2f}] [TotProfit: {profit:8.2f}] [s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}] [rho: {stats['rho']}] [vega: {stats['vega']}]")
             print(
                 "\033[36m" + f"[Total Value: {total_value:10.2f}] [Daily Profits: {total_daily_profit:.2f}] [Total Profits: {total_from_profits:10.2f}]" + "\033[0m")
-            sleep(5)
+            sleep(.5)
 
 
 if __name__ == '__main__':
