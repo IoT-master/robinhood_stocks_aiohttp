@@ -1,7 +1,8 @@
 from time import sleep
 from dateutil.parser import parse
+from dateutil.tz import tzlocal
 from Robinhood import Robinhood
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Usage(Robinhood):
@@ -47,8 +48,10 @@ class Usage(Robinhood):
             total_daily_profit = 0
             total_value = 0
             for stats in sorted_options:
-                same_day = parse(
-                    stats['created_at']).date() == datetime.today().date()
+                now = datetime.now()
+                # same_day = parse(stats['created_at']).date() == datetime.today().date()
+                same_day = datetime(now.year, now.month, now.day + 1, 8, 30, 0,
+                                    tzinfo=tzlocal()) - parse(stats['created_at']) < timedelta(days=2)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * \
