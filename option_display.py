@@ -51,7 +51,7 @@ class Usage(Robinhood):
                 now = datetime.now()
                 # same_day = parse(stats['created_at']).date() == datetime.today().date()
                 same_day = datetime(now.year, now.month, now.day + 1, 8, 30, 0,
-                                    tzinfo=tzlocal()) - parse(stats['created_at']) < timedelta(days=2)
+                                    tzinfo=tzlocal()) - parse(stats['created_at']) < timedelta(days=1, hours=1)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * \

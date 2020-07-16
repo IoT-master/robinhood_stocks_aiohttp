@@ -119,7 +119,7 @@ async def get_current_status_of_stock_list(self, stock_list):
                                                                x['last_trade_price']),
                                                            x['last_extended_hours_trade_price']),
                                                        'dB': log(float(x.get('last_trade_price', x['adjusted_previous_close'])) / float(x['adjusted_previous_close'])),
-                                                       'extended': float(x.get('last_extended_hours_trade_price', x['last_trade_price']))
+                                                       'extended': float(x['last_extended_hours_trade_price']) if x['last_extended_hours_trade_price'] else float(x['last_trade_price'])
                                                        }), filtered_stock_quotes))
     return data_to_screen
 
