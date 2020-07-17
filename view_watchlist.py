@@ -8,14 +8,14 @@ class Usage(Robinhood):
         await self.login()
         watch_list = ['TSLA', 'NIO', 'BA', 'NVDA', 'TNA', 'DOCU', 'ILMN', 'WORK', 'GNUS', 'SPCE', 'MRNA', 'CCL',
                       'SPHD', 'TEAM', 'RH', 'MSFT', 'COST', 'GOOG', 'GOOGL', 'DELL', 'SPY', 'GS', 'SPWR', 'DIS', 'dhi',
-                      'enph', 'tlt']
+                      'enph', 'tlt', 'lrn', 'appl', 'msft', 'amzn', 'twtr', 'aapl', 'twlo']
 
         while True:
             self.clear_screen()
             quotes_response = await self.get_quotes(watch_list)
             quotes_response = list(filter(lambda x: x, quotes_response))
             sorted_stocks = sorted(
-                quotes_response, key=lambda x: (float(
+                quotes_response, key=lambda x: abs(float(
                     x['last_trade_price']) - float(x['previous_close']))/float(x['previous_close']),
                 reverse=True)
             for each_ticker in sorted_stocks:

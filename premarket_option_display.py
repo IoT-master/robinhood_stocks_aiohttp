@@ -74,7 +74,7 @@ class Usage(Robinhood):
                     f"{stats['ticker'].rjust(5, ' ')} {aftermarket_price_change:5.2f} {stats['price_change']:5.2f} [Daily_Profit: {true_daily_profit:7.2f}] [TotProfit: {profit:8.2f}] [s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {stats['quantity']} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']}] [gamma: {stats['gamma']}] [iv: {stats['implied_volatility']}] [theta: {stats['theta']}] [rho: {stats['rho']}] [vega: {stats['vega']}]")
             print(
                 "\033[36m" + f"[Total Value: {total_value:10.2f}] [Daily Profits: {total_daily_profit:.2f}] [Total Profits: {total_from_profits:10.2f}]" + "\033[0m")
-            sleep(.5)
+            sleep(5)
 
 
 if __name__ == '__main__':
