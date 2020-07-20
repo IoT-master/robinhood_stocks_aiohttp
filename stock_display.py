@@ -19,14 +19,13 @@ class Usage(Robinhood):
                 stats = v['status']
                 average_buy_price = float(v['average_buy_price'])
                 profit_per_share = stats['extended'] - average_buy_price
-                db_profit_per_share = 0 if (not int(stats['extended'])) or not int(average_buy_price) else log(
-                    stats['extended'] / average_buy_price)
+                # db_profit_per_share = 0 if (not int(stats['extended'])) or not int(average_buy_price) else log(stats['extended'] / average_buy_price)
                 total_value += float(v['quantity']) * stats['extended']
                 total_profit += average_buy_price * float(v['quantity'])
                 total_daily_profit += float(v['quantity']) * (
                     stats['extended'] - stats['adjusted_previous_close'])
                 print(
-                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
+                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
             print(
                 "\033[36m" + f"[Total Value {total_value:10.2f}] [Total Profits:{total_profit:10.2f}] [Daily Profits: {total_daily_profit:.2f}]" + "\033[0m")
             sleep(.5)

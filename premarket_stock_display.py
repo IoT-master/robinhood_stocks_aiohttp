@@ -29,7 +29,7 @@ class Usage(Robinhood):
                 aftermarket_price_change = (
                     stats.get('extended', stats['last']) - stats['last'])
                 print(
-                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [dbpps: {db_profit_per_share:6.2f}] [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}] {aftermarket_price_change:5.2f}")
+                    f"{k.rjust(8, ' ')}: [abp: {average_buy_price:8.2f}], [#: {float(v['quantity']):7.2f}] [pps: {profit_per_share:6.2f}], [last: {stats['last']:8.2f}], [bid: {stats['bid']:8.2f}], [ask: {stats['ask']:8.2f}], [real_last: {stats['extended']:8.2f}], [%: {stats['percent']:6.2f}], [dB: {stats['dB']:6.3f}]")
             print(
                 "\033[36m" + f"[Total Value {total_value:10.2f}] [Total Profits:{total_profit:10.2f}] [Daily Profits: {total_daily_profit:.2f}]" + "\033[0m")
             sleep(5)
