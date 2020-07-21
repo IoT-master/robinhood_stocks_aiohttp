@@ -37,7 +37,7 @@ async def login(self, username=None, password=None, expires_in=86400, scope='int
     """
     device_token = self.generate_device_token()
     header_states = Path.cwd().joinpath(
-        f'confidential/header_states/{pickle_file}.json')
+        f'Confidential/{pickle_file}.json')
     # pickle_path = Path.cwd().joinpath(f'confidential/account_states/{pickle_file}.pickle')
     url = urls.login_url()
     payload = {

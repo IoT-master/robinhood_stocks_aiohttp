@@ -1,16 +1,19 @@
 from time import sleep
 
 from Robinhood import Robinhood
+from pathlib import Path
 
 
 class Usage(Robinhood):
 
     async def main(self):
         await self.login()
-        watch_list = ['TSLA', 'NIO', 'BA', 'NVDA', 'TNA', 'DOCU', 'ILMN', 'WORK', 'GNUS', 'SPCE', 'MRNA', 'CCL',
-                      'SPHD', 'TEAM', 'RH', 'MSFT', 'COST', 'GOOG', 'GOOGL', 'DELL', 'SPY', 'GS', 'SPWR', 'DIS', 'dhi',
-                      'enph', 'tlt', 'lrn', 'appl', 'msft', 'amzn', 'twtr', 'aapl', 'twlo', 'ibio', 'dhi', 'azn',
-                      'llnw', 'vslr', 'yndx', 'ontx', 'vmw', 'vxx', 'wkhs', 'csiq', 'opka']
+        watch_file = Path('Confidential/watch_list.json')
+        if watch_file.exists():
+            watch_list = self.load_from_json(str(watch_file))
+        else:
+            watch_list = []
+            self.save_to_json(str(watch_file), watch_list)
 
         while True:
             self.clear_screen()
