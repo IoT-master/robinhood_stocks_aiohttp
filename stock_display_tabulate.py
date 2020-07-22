@@ -2,10 +2,9 @@ from Robinhood import Robinhood
 from time import sleep
 from colorama import init
 from colorama import Fore, Back, Style
-from tabulate import tabulate
 
 
-init()
+init(autoreset=True)
 
 
 class Usage(Robinhood):
@@ -14,7 +13,8 @@ class Usage(Robinhood):
         await self.login()
         while True:
             stocks = await self.get_stock_positions_from_account()
-            self.clear_screen()
+            # self.clear_screen()
+            print('\033[2J')
             sorted_stocks = sorted(
                 stocks.items(), key=lambda x: x[1]['status']['extended'] - float(x[1]['average_buy_price']), reverse=True)
             total_profit = 0
@@ -36,9 +36,9 @@ class Usage(Robinhood):
                 if not self.is_market_open():
                     to_printout += f"{aftermarket_price_change: 6.2f}"
                 print(alt_background + (Fore.RED if profit_per_share <
-                                        0 else Fore.GREEN) + to_printout + Fore.RESET + Back.RESET)
+                                        0 else Fore.GREEN) + to_printout + Fore.RESET)
             print(
-                f"[Total Value {total_value:10.2f}] [Total Profits:{total_profit:10.2f}] [Daily Profits: {total_daily_profit:.2f}]" + "\033[0m")
+                f"[Total Value {total_value:10.2f}] [Total Profits:{total_profit:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
             sleep(.5 if self.is_market_open() else 5)
 
 
