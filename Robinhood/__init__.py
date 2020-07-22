@@ -1,6 +1,7 @@
 import random
 from datetime import datetime, timedelta
 from math import log
+from dateutil.tz import gettz
 
 import jwt
 import ujson
@@ -56,8 +57,18 @@ class Robinhood(ApiOperations):
         display_current_status_of_stock_list, get_stock_positions_from_account, \
         get_list_of_instruments, get_current_status_of_stock_list, get_option_positions_from_account \
 
+
     def __init__(self):
         super(Robinhood, self).__init__()
+
+    @staticmethod
+    def is_market_open():
+        right_now = datetime.now(tz=gettz('America/New_York'))
+        market_start = datetime(year=right_now.year, month=right_now.month, day=right_now.day,
+                                hour=9, minute=30, tzinfo=gettz('America/New_York'))
+        market_stop = datetime(year=right_now.year, month=right_now.month, day=right_now.day,
+                               hour=16, minute=30, tzinfo=gettz('America/New_York'))
+        return market_start <= right_now <= market_stop
 
     async def id_for_stock(self, symbol):
         """Takes a stock ticker and returns the instrument id associated with the stock.
