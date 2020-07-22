@@ -1,8 +1,16 @@
 from time import sleep
 from dateutil.parser import parse
 from dateutil.tz import tzlocal
+from dateutil.tz import tz
+from dateutil.tz.tz import tzoffset
 from Robinhood import Robinhood
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, tzinfo
+from colorama import init
+from colorama import Fore, Back, Style
+from dateutil.tz import gettz
+
+
+init(autoreset=True)
 
 
 class Usage(Robinhood):
@@ -11,7 +19,7 @@ class Usage(Robinhood):
         await self.login()
         while True:
             options_dict, ticker_instrument_dict = await self.get_option_positions_from_account()
-            self.clear_screen()
+            print('\033[2J')
             # Extracting the Tickers Names from the Options
             stock_list = [ticker for ticker in ticker_instrument_dict]
             get_quotes_response = await self.get_quotes(stock_list)
@@ -47,30 +55,33 @@ class Usage(Robinhood):
             total_from_profits = 0
             total_daily_profit = 0
             total_value = 0
-            for stats in sorted_options:
-                now = datetime.now()
-                # same_day = parse(stats['created_at']).date() == datetime.today().date()
-                same_day = datetime(now.year, now.month, now.day + 1, 8, 30, 0,
-                                    tzinfo=tzlocal()) - parse(stats['created_at']) < timedelta(days=1, hours=1)
+            for index, stats in enumerate(sorted_options):
+                right_now = datetime.now(tz=gettz('America/New_York'))
+                same_day = datetime(right_now.year, right_now.month, right_now.day+1, 8, 30, 0,
+                                    tzinfo=gettz('America/New_York')) - parse(stats['created_at']) < timedelta(days=1)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * \
-                    (float(stats['adjusted_mark_price'])
+                    (float(stats['mark_price'])
                      * 100 - stats['average_price'])
                 position = 'buy ' if stats['quantity'] > 0 else 'sell'
                 daily_profit_per_option = stats['quantity'] * (float(
                     stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
                 aftermarket_price_change = stats['aftermarket_price_change'] if 'aftermarket_price_change' in stats else 0
+                # TODO: Fix this logic when I can get the datetime of an option after duplicating an option
                 true_daily_profit = profit if same_day else daily_profit_per_option
                 total_from_profits += profit
                 total_daily_profit += true_daily_profit
                 total_value += stats['quantity'] * \
                     float(stats['adjusted_mark_price']) * 100
-                print(
-                    f"{stats['ticker'].rjust(5, ' ')} {aftermarket_price_change:5.2f} {stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}] [TP: {profit:8.2f}] [s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [del: {stats['delta']}] [gam: {stats['gamma']}] [iv: {stats['implied_volatility']}] [the: {stats['theta']}] [rho: {stats['rho']}] [veg: {stats['vega']}]")
+                alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
+                to_printout = f"{stats['ticker'].rjust(5, ' ')} {aftermarket_price_change:5.2f} {stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
+                to_printout += (Fore.RED if profit <
+                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [del: {stats['delta']}] [gam: {stats['gamma']}] [iv: {stats['implied_volatility']}] [the: {stats['theta']}] [rho: {stats['rho']}] [veg: {stats['vega']}]"
+                print(alt_background + to_printout)
             print(
-                "\033[36m" + f"[Total Value: {total_value:10.2f}] [Daily Profits: {total_daily_profit:.2f}] [Total Profits: {total_from_profits:10.2f}]" + "\033[0m")
-            sleep(.5)
+                f"[Total Value: {total_value:10.2f}] [Daily Profits: {total_daily_profit:.2f}] [Total Profits: {total_from_profits:10.2f}]")
+            sleep(.5 if self.is_market_open() else 5)
 
 
 if __name__ == '__main__':
