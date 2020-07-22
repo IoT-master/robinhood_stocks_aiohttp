@@ -11,6 +11,7 @@ class Usage(Robinhood):
         watch_file = Path('Confidential/watch_list.json')
         if watch_file.exists():
             watch_list = self.load_from_json(str(watch_file))
+            watch_list = set(watch_list)
         else:
             watch_list = []
             self.save_to_json(str(watch_file), watch_list)
