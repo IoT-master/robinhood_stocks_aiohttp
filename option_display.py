@@ -26,6 +26,7 @@ class Usage(Robinhood):
 
             previous_closed_price_dict = {}
             last_traded_price_dict = {}
+            after_market_change_dict = {}
             # Getting Stock Info of the Option
             for each in zip(stock_list, get_quotes_response):
                 # For Option Names that are NOT Stock Ticker Symbols anymore
@@ -34,6 +35,8 @@ class Usage(Robinhood):
                         'last_extended_hours_trade_price'] else float(each[1]['last_trade_price'])
                     previous_closed_price_dict[each[0]] = float(
                         each[1]['adjusted_previous_close'])
+                    after_market_change_dict[each[0]] = (float(each[1]['last_extended_hours_trade_price']) - float(each[1]['last_trade_price'])) if each[1][
+                        'last_extended_hours_trade_price'] else 0
 
             options_list = []
             for each_ticker in options_dict:
@@ -67,7 +70,8 @@ class Usage(Robinhood):
                 position = 'buy ' if stats['quantity'] > 0 else 'sell'
                 daily_profit_per_option = stats['quantity'] * (float(
                     stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
-                aftermarket_price_change = stats['aftermarket_price_change'] if 'aftermarket_price_change' in stats else 0
+                aftermarket_price_change = after_market_change_dict.get(
+                    stats['ticker'], 0)
                 # TODO: Fix this logic when I can get the datetime of an option after duplicating an option
                 true_daily_profit = profit if same_day else daily_profit_per_option
                 total_from_profits += profit
@@ -75,12 +79,15 @@ class Usage(Robinhood):
                 total_value += stats['quantity'] * \
                     float(stats['adjusted_mark_price']) * 100
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
-                to_printout = f"{stats['ticker'].rjust(5, ' ')} {aftermarket_price_change:5.2f} {stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
+                to_printout = f"{stats['ticker'].rjust(5, ' ')} "
+                if not self.is_market_open():
+                    to_printout += f"{aftermarket_price_change: 5.2f} "
+                to_printout += f"{stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
                 to_printout += (Fore.RED if profit <
                                 0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [del: {stats['delta']}] [gam: {stats['gamma']}] [iv: {stats['implied_volatility']}] [the: {stats['theta']}] [rho: {stats['rho']}] [veg: {stats['vega']}]"
                 print(alt_background + to_printout)
             print(
-                f"[Total Value: {total_value:10.2f}] [Daily Profits: {total_daily_profit:.2f}] [Total Profits: {total_from_profits:10.2f}]")
+                f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
             sleep(.5 if self.is_market_open() else 5)
 
 
