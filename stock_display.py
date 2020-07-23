@@ -31,11 +31,16 @@ class Usage(Robinhood):
                 aftermarket_price_change = (
                     stats.get('extended', stats['last']) - stats['last'])
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
-                to_printout = f"{k.rjust(8, ' ')}: [pps: {profit_per_share:6.2f}] [#: {float(v['quantity']):7.2f}] [abp: {average_buy_price:8.2f}] [last: {stats['last']:8.2f}] [bid: {stats['bid']:8.2f}] [ask: {stats['ask']:8.2f}] [real_last: {stats['extended']:8.2f}] [%: {stats['percent']:6.2f}] "
+                color_warning = Fore.YELLOW if abs(
+                    profit_per_share/average_buy_price) < .02 else ""
+                profit_color = Fore.RED if profit_per_share < 0 else Fore.GREEN
+                to_printout = f"{k.rjust(8, ' ')}: "
+                to_printout += color_warning + \
+                    f"[pps: {profit_per_share:6.2f}] " + profit_color
+                to_printout += f"[#: {float(v['quantity']):7.2f}] [abp: {average_buy_price:8.2f}] [last: {stats['last']:8.2f}] [bid: {stats['bid']:8.2f}] [ask: {stats['ask']:8.2f}] [real_last: {stats['extended']:8.2f}] [%: {stats['percent']:6.2f}] "
                 if not self.is_market_open():
                     to_printout += f"{aftermarket_price_change: 6.2f}"
-                print(alt_background + (Fore.RED if profit_per_share <
-                                        0 else Fore.GREEN) + to_printout)
+                print(alt_background + profit_color + to_printout)
             print(
                 f"[Total Value {total_value:10.2f}] [Total Profits:{total_profit:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
             sleep(.5 if self.is_market_open() else 5)

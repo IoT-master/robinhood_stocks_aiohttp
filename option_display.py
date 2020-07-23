@@ -79,7 +79,10 @@ class Usage(Robinhood):
                 total_value += stats['quantity'] * \
                     float(stats['adjusted_mark_price']) * 100
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
-                to_printout = f"{stats['ticker'].rjust(5, ' ')} "
+                color_warning = Fore.CYAN if abs(float(
+                    stats['mark_price'])*100 - stats['average_price'])/stats['average_price'] < .1 else ""
+                to_printout = color_warning + \
+                    f"{stats['ticker'].rjust(5, ' ')} " + Fore.RESET
                 if not self.is_market_open():
                     to_printout += f"{aftermarket_price_change: 5.2f} "
                 to_printout += f"{stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
