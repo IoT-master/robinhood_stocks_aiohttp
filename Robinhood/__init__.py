@@ -67,7 +67,7 @@ class Robinhood(ApiOperations):
         market_start = datetime(year=right_now.year, month=right_now.month, day=right_now.day,
                                 hour=9, minute=30, tzinfo=gettz('America/New_York'))
         market_stop = datetime(year=right_now.year, month=right_now.month, day=right_now.day,
-                               hour=16, minute=30, tzinfo=gettz('America/New_York'))
+                               hour=16, minute=0, tzinfo=gettz('America/New_York'))
         return market_start <= right_now <= market_stop
 
     async def id_for_stock(self, symbol):
