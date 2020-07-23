@@ -3,12 +3,14 @@ async-timeout==3.0.1
 attrs==19.3.0
 autopep8==1.5.3
 chardet==3.0.4
+colorama==0.4.3
 idna==2.9
 multidict==4.7.6
 pycodestyle==2.6.0
 PyJWT==1.7.1
 python-dateutil==2.8.1
 six==1.15.0
+tabulate==0.8.7
 toml==0.10.1
 tqdm==4.47.0
 ujson==3.0.0
