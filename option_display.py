@@ -29,14 +29,12 @@ class Usage(Robinhood):
             after_market_change_dict = {}
             # Getting Stock Info of the Option
             for each in zip(stock_list, get_quotes_response):
-                # For Option Names that are NOT Stock Ticker Symbols anymore
-                if each[1]:
-                    last_traded_price_dict[each[0]] = float(each[1]['last_extended_hours_trade_price']) if each[1][
-                        'last_extended_hours_trade_price'] else float(each[1]['last_trade_price'])
-                    previous_closed_price_dict[each[0]] = float(
-                        each[1]['adjusted_previous_close'])
-                    after_market_change_dict[each[0]] = (float(each[1]['last_extended_hours_trade_price']) - float(each[1]['last_trade_price'])) if each[1][
-                        'last_extended_hours_trade_price'] else 0
+                last_traded_price_dict[each[0]] = float(each[1]['last_extended_hours_trade_price']) if each[1][
+                    'last_extended_hours_trade_price'] else float(each[1]['last_trade_price'])
+                previous_closed_price_dict[each[0]] = float(
+                    each[1]['adjusted_previous_close'])
+                after_market_change_dict[each[0]] = (float(each[1]['last_extended_hours_trade_price']) - float(each[1]['last_trade_price'])) if each[1][
+                    'last_extended_hours_trade_price'] else 0
 
             options_list = []
             for each_ticker in options_dict:
@@ -83,11 +81,16 @@ class Usage(Robinhood):
                     stats['mark_price'])*100 - stats['average_price'])/stats['average_price'] < .1 else ""
                 to_printout = color_warning + \
                     f"{stats['ticker'].rjust(5, ' ')} " + Fore.RESET
+                for each in ['delta', 'gamma', 'rho', 'theta', 'vega', 'implied_volatility']:
+                    if stats[each] == None:
+                        stats[each] = 0.0
+                    else:
+                        stats[each] = float(stats[each])
                 if not self.is_market_open():
                     to_printout += f"{aftermarket_price_change: 5.2f} "
                 to_printout += f"{stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
                 to_printout += (Fore.RED if profit <
-                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [del: {stats['delta']}] [gam: {stats['gamma']}] [iv: {stats['implied_volatility']}] [the: {stats['theta']}] [rho: {stats['rho']}] [veg: {stats['vega']}]"
+                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']:4.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}]"
                 print(alt_background + to_printout)
             print(
                 f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
