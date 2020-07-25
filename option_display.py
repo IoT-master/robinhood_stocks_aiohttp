@@ -1,13 +1,11 @@
 from time import sleep
 from dateutil.parser import parse
-from dateutil.tz import tzlocal
-from dateutil.tz import tz
-from dateutil.tz.tz import tzoffset
 from Robinhood import Robinhood
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta
 from colorama import init
 from colorama import Fore, Back, Style
 from dateutil.tz import gettz
+import re
 
 
 init(autoreset=True)
@@ -22,7 +20,9 @@ class Usage(Robinhood):
             print('\033[2J')
             # Extracting the Tickers Names from the Options
             stock_list = [ticker for ticker in ticker_instrument_dict]
-            get_quotes_response = await self.get_quotes(stock_list)
+            screened_stock_list = list(map(
+                lambda x: re.findall(r"[A-Z]+", x)[0], stock_list))
+            get_quotes_response = await self.get_quotes(screened_stock_list)
 
             previous_closed_price_dict = {}
             last_traded_price_dict = {}
@@ -79,7 +79,7 @@ class Usage(Robinhood):
                 total_value += stats['quantity'] * \
                     float(stats['adjusted_mark_price']) * 100
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
-                color_warning = Fore.CYAN if abs(float(
+                color_warning = Fore.YELLOW if abs(float(
                     stats['mark_price'])*100 - stats['average_price'])/stats['average_price'] < .1 else ""
                 to_printout = color_warning + \
                     f"{stats['ticker'].rjust(5, ' ')} " + Fore.RESET
