@@ -21,7 +21,7 @@ class Usage(Robinhood):
             # Extracting the Tickers Names from the Options
             stock_list = [ticker for ticker in ticker_instrument_dict]
             screened_stock_list = list(map(
-                lambda x: re.findall(r"[A-Z]+", x)[0], stock_list))
+                lambda x: re.search(r"[A-Z]+", x).group(), stock_list))
             get_quotes_response = await self.get_quotes(screened_stock_list)
 
             previous_closed_price_dict = {}
