@@ -1,6 +1,4 @@
 from Robinhood import Robinhood
-
-
 import pandas as pd
 
 
