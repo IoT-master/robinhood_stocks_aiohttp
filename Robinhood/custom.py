@@ -125,10 +125,10 @@ async def get_current_status_of_stock_list(self, stock_list):
 
 
 async def get_list_of_instruments(self, response_body):
-    ticker_list_resp = await asyncio.gather(*(self.get_symbol_by_url(each_position['instrument']) for each_position in response_body[0]))
+    ticker_list_resp = await asyncio.gather(*(self.get_symbol_by_url(each_position['instrument']) for each_position in response_body))
     stock_ticker_dict = {}
 
-    for ticker, resp in zip(ticker_list_resp, response_body[0]):
+    for ticker, resp in zip(ticker_list_resp, response_body):
         stock_ticker_dict[ticker] = {
             'average_buy_price': resp['average_buy_price'],
             'quantity': resp['quantity'],
@@ -153,7 +153,7 @@ async def get_stock_positions_from_account(self):
 
 async def get_option_positions_from_account(self):
     my_option_positions = await self.get_open_option_positions()
-    option_id_list = map(lambda x: x['option_id'], my_option_positions[0])
+    option_id_list = map(lambda x: x['option_id'], my_option_positions)
     market_data_resp = await asyncio.gather(
         *(self.get_option_market_data_by_id(option_id) for option_id in option_id_list))
     options_detail_resp = await asyncio.gather(
@@ -161,7 +161,7 @@ async def get_option_positions_from_account(self):
           each_market_data in market_data_resp))
     my_options = {}
     ticker_instrument_dict = {}
-    for my_option_position, market_data, option_details in zip(my_option_positions[0], market_data_resp,
+    for my_option_position, market_data, option_details in zip(my_option_positions, market_data_resp,
                                                                options_detail_resp):
         ticker_symbol = my_option_position['chain_symbol']
         ticker_instrument_dict[ticker_symbol] = market_data['instrument']
