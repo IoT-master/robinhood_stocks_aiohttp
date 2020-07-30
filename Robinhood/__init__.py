@@ -91,28 +91,22 @@ class Robinhood(ApiOperations):
         if not jsonify_data:
             res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=False)
             return res
-        try:
-            res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=True)
-        except aiohttp.client_exceptions.ContentTypeError as err:
-            print(err)
-            raise
+
+        res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=True)
+
         if data_type == 'results':
             return res['results']
         elif data_type == 'pagination':
             data = res['results']
             count = 0
             while res.get('next'):
-                try:
-                    res = await self.async_get_wild(res['next'], headers=headers, params=params, jsonify_data=True)
-                    count += 1
-                    if count > 50:
-                        break
-                    if 'results' in res:
-                        for item in res['results']:
-                            data.append(item)
-                except aiohttp.client_exceptions.ContentTypeError as err:
-                    print(err)
-                    raise
+                res = await self.async_get_wild(res['next'], headers=headers, params=params, jsonify_data=True)
+                count += 1
+                if count > 50:
+                    break
+                if 'results' in res:
+                    for item in res['results']:
+                        data.append(item)
             return data
         elif data_type == 'indexzero':
             data = res['results'][0]

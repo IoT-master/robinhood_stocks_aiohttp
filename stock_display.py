@@ -31,8 +31,8 @@ class Usage(Robinhood):
                 aftermarket_price_change = (
                     stats.get('extended', stats['last']) - stats['last'])
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
-                color_warning = Fore.YELLOW if abs(
-                    profit_per_share/average_buy_price) < .02 else ""
+                color_warning = "" if average_buy_price == 0 else (Fore.YELLOW if abs(
+                    profit_per_share/average_buy_price) < .02 else "")
                 profit_color = Fore.RED if profit_per_share < 0 else Fore.GREEN
                 to_printout = f"{k.rjust(8, ' ')}: "
                 to_printout += color_warning + \
