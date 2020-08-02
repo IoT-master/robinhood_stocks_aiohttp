@@ -58,8 +58,8 @@ class Usage(Robinhood):
             total_value = 0
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
-                same_day = datetime(right_now.year, right_now.month, right_now.day+1, 8, 30, 0,
-                                    tzinfo=gettz('America/New_York')) - parse(stats['created_at']) < timedelta(days=1)
+                same_day = datetime(right_now.year, right_now.month, right_now.day, 8, 30, 0,
+                                    tzinfo=gettz('America/New_York')) + timedelta(days=1) - parse(stats['created_at']) < timedelta(days=1)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
                 profit = stats['quantity'] * \
