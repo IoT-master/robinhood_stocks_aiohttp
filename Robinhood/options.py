@@ -117,6 +117,44 @@ async def find_tradable_options(self, symbol, expiration_date=None, strike_price
     return self.data_filter(data, info)
 
 
+async def find_tradable_options2(self, symbol, expiration_date=None, strike_price=None, option_type=None):
+    """Returns a list of all available options for a stock.
+
+    :param symbol: The ticker of the stock.
+    :type symbol: str
+    :param expiration_date: Represents the expiration date in the format YYYY-MM-DD.
+    :type expiration_date: str
+    :param strike_price: Represents the strike price of the option.
+    :type strike_price: str
+    :param option_type: Can be either 'call' or 'put' or left blank to get both.
+    :type option_type: Optional[str]
+    :param info: Will data_filter the results to get a specific value.
+    :type info: Optional[str]
+    :returns: Returns a list of dictionaries of key/value pairs for all calls of the stock. If info parameter is provided, \
+    a list of strings is returned where the strings are the value of the key that matches info.
+
+    """
+
+    symbol = symbol.upper().strip()
+
+    url = urls.option_instruments()
+
+    payload = {
+        'chain_symbol': symbol,
+        'state': 'active'
+    }
+
+    if expiration_date:
+        payload['expiration_date'] = expiration_date
+    if strike_price:
+        payload['strike_price'] = strike_price
+    if option_type:
+        payload['type'] = option_type
+
+    data = await self.custom_async_get_wild(url, 'pagination', headers=self.default_header, params=payload)
+    return data
+
+
 async def find_options_by_expiration_and_strike(self, input_symbols, expiration_date, strike_price,
                                                 option_type=None, info=None):
     """Returns a list of all the option orders that match the seach parameters
@@ -146,7 +184,8 @@ async def find_options_by_expiration_and_strike(self, input_symbols, expiration_
     data = []
     for symbol in symbols:
         all_options = await self.find_tradable_options(symbol, expiration_date, strike_price, option_type, None)
-        filtered_options = [item for item in all_options if item.get("expiration_date") == expiration_date]
+        filtered_options = [item for item in all_options if item.get(
+            "expiration_date") == expiration_date]
 
         for item in filtered_options:
             market_data = self.get_option_market_data_by_id(item['id'])
@@ -315,7 +354,8 @@ async def find_options_by_expiration(self, input_symbols, expiration_date, optio
     data = []
     for symbol in symbols:
         all_options = await self.find_tradable_options(symbol, expiration_date, None, option_type, None)
-        filtered_options = [item for item in all_options if item.get("expiration_date") == expiration_date]
+        filtered_options = [item for item in all_options if item.get(
+            "expiration_date") == expiration_date]
 
         for item in filtered_options:
             market_data = await self.get_option_market_data_by_id(item['id'])

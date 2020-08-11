@@ -6,9 +6,12 @@ chardet==3.0.4
 colorama==0.4.3
 idna==2.9
 multidict==4.7.6
+numpy==1.19.1
+pandas==1.0.5
 pycodestyle==2.6.0
 PyJWT==1.7.1
 python-dateutil==2.8.1
+pytz==2020.1
 six==1.15.0
 tabulate==0.8.7
 toml==0.10.1

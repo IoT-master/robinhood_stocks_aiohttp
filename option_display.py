@@ -58,20 +58,29 @@ class Usage(Robinhood):
             total_value = 0
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
-                same_day = datetime(right_now.year, right_now.month, right_now.day+1, 8, 30, 0,
-                                    tzinfo=gettz('America/New_York')) - parse(stats['created_at']) < timedelta(days=1)
+                same_day = datetime(right_now.year, right_now.month, right_now.day, 8, 30, 0,
+                                    tzinfo=gettz('America/New_York')) + timedelta(days=1) - parse(stats['created_at']) < timedelta(days=1)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
-                profit = stats['quantity'] * \
-                    (float(stats['mark_price'])
-                     * 100 - stats['average_price'])
-                position = 'buy ' if stats['quantity'] > 0 else 'sell'
+
+                position = 'buy ' if stats['average_price'] > 0 else 'sell'
                 daily_profit_per_option = stats['quantity'] * (float(
                     stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
                 aftermarket_price_change = after_market_change_dict.get(
                     stats['ticker'], 0)
                 # TODO: Fix this logic when I can get the datetime of an option after duplicating an option
-                true_daily_profit = profit if same_day else daily_profit_per_option
+                # true_daily_profit = profit if same_day else daily_profit_per_option
+                if stats['average_price'] > 0:
+                    profit = stats['quantity'] * \
+                        (float(stats['mark_price'])
+                         * 100 - stats['average_price'])
+                    true_daily_profit = profit if same_day else daily_profit_per_option
+                else:
+                    profit = stats['quantity'] * \
+                        (-float(stats['mark_price'])
+                         * 100 + -stats['average_price'])
+                    true_daily_profit = profit if same_day else stats['quantity'] * (-float(
+                        stats['adjusted_mark_price'])*100 + float(stats['previous_close_price'])*100)
                 total_from_profits += profit
                 total_daily_profit += true_daily_profit
                 total_value += stats['quantity'] * \
@@ -90,7 +99,7 @@ class Usage(Robinhood):
                     to_printout += f"{aftermarket_price_change: 5.2f} "
                 to_printout += f"{stats['price_change']:5.2f} [DP: {true_daily_profit:7.2f}]"
                 to_printout += (Fore.RED if profit <
-                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type']} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']:4.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}]"
+                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s at {last_traded_price:6.2f}] [v at {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type'].rjust(4, ' ')} at {stats['strike_price']:5.1f} {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}]"
                 print(alt_background + to_printout)
             print(
                 f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")

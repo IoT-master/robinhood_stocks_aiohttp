@@ -2,11 +2,13 @@ import random
 from datetime import datetime, timedelta
 from math import log
 from dateutil.tz import gettz
+from pathlib import Path
 
 import jwt
 import ujson
 
 from Robinhood.basic_async_api import ApiOperations
+import aiohttp
 
 
 class Robinhood(ApiOperations):
@@ -40,7 +42,7 @@ class Robinhood(ApiOperations):
     from Robinhood.options import find_options_by_expiration, find_options_by_expiration_and_strike, \
         find_options_by_specific_profitability, find_tradable_options, get_aggregate_positions, \
         get_all_option_positions, get_chains, get_market_options, get_open_option_positions, get_option_market_data, \
-        get_option_market_data_by_id
+        get_option_market_data_by_id, find_tradable_options2
 
     from Robinhood.crypto import load_crypto_profile, get_crypto_positions, get_crypto_currency_pairs, get_crypto_info, \
         get_crypto_quote, get_crypto_quote_from_id, get_crypto_historicals
@@ -89,20 +91,22 @@ class Robinhood(ApiOperations):
         if not jsonify_data:
             res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=False)
             return res
+
         res = await self.async_get_wild(url, headers=headers, params=params, jsonify_data=True)
+
         if data_type == 'results':
             return res['results']
         elif data_type == 'pagination':
-            data = [res['results']]
+            data = res['results']
             count = 0
-            if 'next' in res:
-                while res['next']:
-                    res = await self.async_get_wild(res['next'], headers=headers, params=params, jsonify_data=True)
-                    count += 1
-                    assert count < 100
-                    if 'results' in res:
-                        for item in res['results']:
-                            data.append(item)
+            while res.get('next'):
+                res = await self.async_get_wild(res['next'], headers=headers, params=params, jsonify_data=True)
+                count += 1
+                if count > 50:
+                    break
+                if 'results' in res:
+                    for item in res['results']:
+                        data.append(item)
             return data
         elif data_type == 'indexzero':
             data = res['results'][0]
@@ -191,7 +195,7 @@ class Robinhood(ApiOperations):
                 return (new / old - 1) * 100
 
         def calc_option_db(old, new):
-            return log(new / old)
+            return 0 if old else log(new / old)
 
         return {
             'quantity': float(each_option_owned['quantity']),
@@ -309,18 +313,18 @@ class Robinhood(ApiOperations):
 
     @staticmethod
     def save_to_json_dict(filename, contents):
-        with open(filename, 'w') as f:
-            f.write(ujson.dumps(contents, indent=4, sort_keys=True))
+        p = Path(filename)
+        p.write_text(ujson.dumps(contents, indent=4, sort_keys=True))
 
     @staticmethod
     def save_to_json(filename, contents):
-        with open(filename, 'w') as f:
-            f.write(ujson.dumps(contents, indent=4))
+        p = Path(filename)
+        p.write_text(ujson.dumps(contents, indent=4))
 
     @staticmethod
     def load_from_json(filename):
-        with open(filename, 'r') as f:
-            return ujson.loads(f.read())
+        p = Path(filename)
+        return ujson.loads(p.read_text())
 
     @staticmethod
     def data_filter(data, info):

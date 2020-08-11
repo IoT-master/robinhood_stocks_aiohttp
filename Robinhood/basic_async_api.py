@@ -20,10 +20,15 @@ class ApiOperations(object):
     async def async_get_wild(self, url, params=None, headers=None, jsonify_data=False):
         async with self.session.get(url, params=params, headers=headers, ssl=False) as resp:
             if jsonify_data:
-                resp = await resp.json()
+                try:
+                    response = await resp.json()
+                except aiohttp.client_exceptions.ContentTypeError as err:
+                    print(err)
+                    print(await resp.text())
+                    raise
             else:
-                resp = await resp.text()
-            return resp
+                response = await resp.text()
+            return response
 
     async def async_post_wild(self, url, payload, params=None, headers=None, jsonify_data=False):
         async with self.session.post(url, params=params, data=payload, headers=headers, ssl=False) as resp:
