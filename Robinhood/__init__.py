@@ -195,7 +195,7 @@ class Robinhood(ApiOperations):
                 return (new / old - 1) * 100
 
         def calc_option_db(old, new):
-            return log(new / old)
+            return 0 if old else log(new / old)
 
         return {
             'quantity': float(each_option_owned['quantity']),
