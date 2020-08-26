@@ -34,7 +34,7 @@ class Usage(Robinhood):
                 color_warning = "" if average_buy_price == 0 else (Fore.YELLOW if abs(
                     profit_per_share/average_buy_price) < .02 else "")
                 profit_color = Fore.RED if profit_per_share < 0 else Fore.GREEN
-                to_printout = f"{k.rjust(8, ' ')}: "
+                to_printout = f"{k.rjust(8, ' ')}: {stats['last']-stats.get('adjusted_previous_close',0):6.2f} "
                 to_printout += color_warning + \
                     f"[pps: {profit_per_share:7.2f}] " + profit_color
                 to_printout += f"[#: {float(v['quantity']):7.2f}] [abp: {average_buy_price:8.2f}] [last: {stats['last']:8.2f}] [bid: {stats['bid']:8.2f}] [ask: {stats['ask']:8.2f}] [real_last: {stats['extended']:8.2f}] [%: {stats['percent']:6.2f}] "
