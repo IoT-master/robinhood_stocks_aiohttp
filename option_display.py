@@ -60,11 +60,12 @@ class Usage(Robinhood):
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
                 same_day = datetime(right_now.year, right_now.month, right_now.day, 8, 30, 0,
-                                    tzinfo=gettz('America/New_York')) + timedelta(days=1) - parse(stats['created_at']) < timedelta(days=1)
+                                    tzinfo=gettz('America/New_York')) + timedelta(days=1) - parse(stats['created_at']) < timedelta(days=1, hours=8.5)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
 
                 position = 'buy ' if stats['average_price'] > 0 else 'sell'
+                close_position = 1 if stats['average_price'] > 0 else -1
                 daily_profit_per_option = stats['quantity'] * (float(
                     stats['adjusted_mark_price'])*100 - float(stats['previous_close_price'])*100)
                 aftermarket_price_change = after_market_change_dict.get(
@@ -99,9 +100,7 @@ class Usage(Robinhood):
                 time_before_expiration = parse(
                     stats['sellout_datetime']) - datetime.now(tz=gettz('America/New_York'))
                 if not self.is_market_open():
-
-                    to_printout += f"{aftermarket_price_change: 5.2f} "
-
+                    to_printout += f"{aftermarket_price_change: 6.2f} [${close_position*aftermarket_price_change*stats['delta']*100: 8.2f}] "
                 to_printout += f"{stats['price_change']:6.2f} [DP: {true_daily_profit:7.2f}] "
                 to_printout += (Fore.RED if profit <
                                 0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s: {last_traded_price:6.2f}] [v: {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type'].rjust(4, ' ')}  [k: {stats['strike_price']:5.1f}] {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}] [{time_before_expiration.days:3} day(s)]"
