@@ -17,7 +17,9 @@ class Usage(Robinhood):
         await self.login()
         while True:
             options_dict, ticker_instrument_dict = await self.get_option_positions_from_account()
-            print('\033[2J')
+            # print('\033[2J')
+            # print('\033[F')
+            print('\033[H')
             # Extracting the Tickers Names from the Options
             stock_list = [ticker for ticker in ticker_instrument_dict]
             screened_stock_list = list(map(

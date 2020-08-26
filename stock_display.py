@@ -13,7 +13,9 @@ class Usage(Robinhood):
         await self.login()
         while True:
             stocks = await self.get_stock_positions_from_account()
-            print('\033[2J')
+            # print('\033[2J')
+            # print('\033[F')
+            print('\033[H')
             sorted_stocks = sorted(
                 stocks.items(), key=lambda x: x[1]['status']['extended'] - float(x[1]['average_buy_price']), reverse=True)
             total_profit = 0

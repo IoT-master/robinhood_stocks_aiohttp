@@ -22,7 +22,9 @@ class Usage(Robinhood):
             self.save_to_json(str(watch_file), watch_list)
 
         while True:
-            print('\033[2J')
+            # print('\033[2J')
+            # print('\033[F')
+            print('\033[H')
             quotes_response = await self.get_quotes(watch_list)
             quotes_response = list(filter(lambda x: x, quotes_response))
             sorted_stocks = sorted(
