@@ -56,6 +56,7 @@ class Usage(Robinhood):
             total_from_profits = 0
             total_daily_profit = 0
             total_value = 0
+            total_print = []
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
                 same_day = datetime(right_now.year, right_now.month, right_now.day, 8, 30, 0,
@@ -88,7 +89,7 @@ class Usage(Robinhood):
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
                 color_warning = Fore.YELLOW if abs(float(
                     stats['mark_price'])*100 - stats['average_price'])/stats['average_price'] < .1 else ""
-                to_printout = color_warning + \
+                to_printout = alt_background + color_warning + \
                     f"{stats['ticker'].rjust(5, ' ')} " + Fore.RESET
                 for each in ['delta', 'gamma', 'rho', 'theta', 'vega', 'implied_volatility']:
                     if stats[each] == None:
@@ -104,10 +105,12 @@ class Usage(Robinhood):
                 to_printout += f"{stats['price_change']:6.2f} [DP: {true_daily_profit:7.2f}] "
                 to_printout += (Fore.RED if profit <
                                 0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s: {last_traded_price:6.2f}] [v: {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type'].rjust(4, ' ')}  [k: {stats['strike_price']:5.1f}] {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}] [{time_before_expiration.days:3} day(s)]"
-                print(alt_background + to_printout)
-            print(
-                f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
-            sleep(.5 if self.is_market_open() else 5)
+                # print(to_printout)
+                total_print.append(to_printout + Back.RESET)
+            print('\n'.join(total_print) + '\n' +
+                  f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
+            # sleep(.5 if self.is_market_open() else 5)
+            sleep(.5)
 
 
 if __name__ == '__main__':
