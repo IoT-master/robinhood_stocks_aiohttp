@@ -15,6 +15,7 @@ class Usage(Robinhood):
 
     async def main(self):
         await self.login()
+        print('\033[2J')
         while True:
             options_dict, ticker_instrument_dict = await self.get_option_positions_from_account()
             # print('\033[2J')

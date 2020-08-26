@@ -13,6 +13,7 @@ class Usage(Robinhood):
 
     async def main(self):
         await self.login()
+        print('\033[2J')
         watch_file = Path('Confidential/watch_list.json')
         if watch_file.exists():
             watch_list = self.load_from_json(str(watch_file))

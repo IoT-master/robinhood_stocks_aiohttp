@@ -11,6 +11,7 @@ class Usage(Robinhood):
 
     async def main(self):
         await self.login()
+        print('\033[2J')
         while True:
             stocks = await self.get_stock_positions_from_account()
             # print('\033[2J')
