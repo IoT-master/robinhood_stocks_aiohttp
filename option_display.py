@@ -59,8 +59,8 @@ class Usage(Robinhood):
             total_print = []
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
-                same_day = datetime(right_now.year, right_now.month, right_now.day, 8, 30, 0,
-                                    tzinfo=gettz('America/New_York')) + timedelta(days=1) - parse(stats['created_at']) < timedelta(days=1, hours=8.5)
+                same_day = datetime(right_now.year, right_now.month, right_now.day, 9, 30, 0,
+                                    tzinfo=gettz('America/New_York')) - parse(stats['created_at']) < timedelta(days=1)
                 last_traded_price = last_traded_price_dict[stats['ticker']] if stats[
                     'ticker'] in last_traded_price_dict else 0
 
@@ -71,7 +71,7 @@ class Usage(Robinhood):
                 aftermarket_price_change = after_market_change_dict.get(
                     stats['ticker'], 0)
                 # TODO: Fix this logic when I can get the datetime of an option after duplicating an option
-                # true_daily_profit = profit if same_day else daily_profit_per_option
+                # Only way to tell when you are buying vs selling option(s)
                 if stats['average_price'] > 0:
                     profit = stats['quantity'] * \
                         (float(stats['mark_price'])
@@ -99,11 +99,12 @@ class Usage(Robinhood):
                         stats[each] = float(stats[each])
                 time_before_expiration = parse(
                     stats['sellout_datetime']) - datetime.now(tz=gettz('America/New_York'))
+                option_quantity = int(stats['quantity'])
                 if not self.is_market_open():
-                    to_printout += f"{aftermarket_price_change: 6.2f} [${close_position*aftermarket_price_change*stats['delta']*100: 8.2f}] "
-                to_printout += f"{stats['price_change']:6.2f} [DP: {true_daily_profit:7.2f}] "
+                    to_printout += f"{aftermarket_price_change: 6.2f} [${option_quantity*close_position*aftermarket_price_change*stats['delta']*100: 8.2f}] "
+                to_printout += f"{stats['price_change']:6.2f} [DP:${true_daily_profit:7.2f}] "
                 to_printout += (Fore.RED if profit <
-                                0 else Fore.GREEN) + f" [TP: {profit:8.2f}] " + "\033[0m" + alt_background + f"[s: {last_traded_price:7.2f}] [v: {float(stats['adjusted_mark_price']):7.2f}] {int(stats['quantity']):2} {position} {stats['type'].rjust(4, ' ')}  [k: {stats['strike_price']:5.1f}] {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}] [{time_before_expiration.days:3} day(s)] {last_traded_price - stats['strike_price']:5.2f}"
+                                0 else Fore.GREEN) + f" [TP:${profit:8.2f}] " + "\033[0m" + alt_background + f"[s: {last_traded_price:7.2f}] [v: {float(stats['adjusted_mark_price']):7.2f}] {option_quantity:2} {position} {stats['type'].rjust(4, ' ')}  [k: {stats['strike_price']:5.1f}] {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}] [{time_before_expiration.days:3} day(s)] {last_traded_price - stats['strike_price']:5.2f}"
                 total_print.append(to_printout + Back.RESET)
             print('\n'.join(total_print) + '\n' +
                   f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
