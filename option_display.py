@@ -94,8 +94,8 @@ class Usage(Robinhood):
                         stats['adjusted_mark_price'])*100 + float(stats['previous_close_price'])*100)
                 total_from_profits += profit
                 total_daily_profit += true_daily_profit
-                total_value += stats['quantity'] * \
-                    float(stats['adjusted_mark_price']) * 100
+                adjusted_adjusted_mark_price = float(stats['adjusted_mark_price']) * 100 if position == 'buy ' else -float(stats['adjusted_mark_price']) * 100
+                total_value += stats['quantity'] * adjusted_adjusted_mark_price
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
                 color_warning = Fore.YELLOW if abs(float(
                     stats['mark_price'])*100 - stats['average_price'])/stats['average_price'] < .1 else ""
