@@ -152,7 +152,11 @@ async def get_stock_positions_from_account(self):
 
 
 async def get_option_positions_from_account(self):
-    my_option_positions = await self.get_open_option_positions()
+    my_option_positions2 = await self.get_open_option_positions()
+    my_option_positions = []
+    for each in my_option_positions2:
+        if each['chain_symbol'] != 'HYLN':
+            my_option_positions.append(each)
     option_id_list = map(lambda x: x['option_id'], my_option_positions)
     market_data_resp = await asyncio.gather(
         *(self.get_option_market_data_by_id(option_id) for option_id in option_id_list))

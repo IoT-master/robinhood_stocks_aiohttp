@@ -26,6 +26,8 @@ class Usage(Robinhood):
             stock_list = [ticker for ticker in ticker_instrument_dict]
             screened_stock_list = list(map(
                 lambda x: re.search(r"[A-Z]+", x).group(), stock_list))
+            # screened_stock_list = filter(
+            #     lambda x: x != 'HYLN', screened_stock_list)
             get_quotes_response = await self.get_quotes(screened_stock_list)
 
             previous_closed_price_dict = {}
@@ -94,7 +96,8 @@ class Usage(Robinhood):
                         stats['adjusted_mark_price'])*100 + float(stats['previous_close_price'])*100)
                 total_from_profits += profit
                 total_daily_profit += true_daily_profit
-                adjusted_adjusted_mark_price = float(stats['adjusted_mark_price']) * 100 if position == 'buy ' else -float(stats['adjusted_mark_price']) * 100
+                adjusted_adjusted_mark_price = float(
+                    stats['adjusted_mark_price']) * 100 if position == 'buy ' else -float(stats['adjusted_mark_price']) * 100
                 total_value += stats['quantity'] * adjusted_adjusted_mark_price
                 alt_background = Back.BLUE if index % 2 == 0 else Back.BLACK
                 color_warning = Fore.YELLOW if abs(float(
@@ -102,7 +105,8 @@ class Usage(Robinhood):
                 to_printout = alt_background + color_warning + \
                     f"{stats['ticker'].rjust(5, ' ')} " + Fore.RESET
                 for each in ['delta', 'gamma', 'rho', 'theta', 'vega', 'implied_volatility']:
-                    stats[each] = 0.0 if stats[each] == None else float(stats[each])
+                    stats[each] = 0.0 if stats[each] == None else float(
+                        stats[each])
                 time_before_expiration = parse(
                     stats['sellout_datetime']) - datetime.now(tz=gettz('America/New_York'))
                 option_quantity = int(stats['quantity'])
@@ -111,11 +115,10 @@ class Usage(Robinhood):
                 to_printout += f"{stats['price_change']:6.2f} [DP:${true_daily_profit:8.2f}] "
                 to_printout += (Fore.RED if profit <
                                 0 else Fore.GREEN) + f" [TP:${profit:8.2f}] " + "\033[0m" + alt_background + f"[s: {last_traded_price:7.2f}] [v: {float(stats['adjusted_mark_price']):7.2f}] {option_quantity:2} {position} {stats['type'].rjust(4, ' ')}  [k: {stats['strike_price']:5.1f}] {stats['expiration_date']} [delta: {stats['delta']:5.2f}] [gamma: {stats['gamma']:4.2f}] [iv: {stats['implied_volatility']:4.2f}] [theta: {stats['theta']:5.2f}] [rho: {stats['rho']:5.2f}] [vega: {stats['vega']:5.2f}] [{time_before_expiration.days:3} day(s)] "
-                to_printout += f"{float(stats['average_price'])/100:7.2f} " 
+                to_printout += f"{float(stats['average_price'])/100:7.2f} "
                 # to_printout += f"{last_traded_price - stats['strike_price']:7.2f}"
                 to_printout += Back.RESET
-                                
-                                
+
                 total_print.append(to_printout + Back.RESET)
             print('\n'.join(total_print) + '\n' +
                   f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
