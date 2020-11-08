@@ -13,10 +13,21 @@ init(autoreset=True)
 
 class Usage(Robinhood):
 
+    @staticmethod
+    def reset_screen():
+        print('\033[2J')
+        print('\033[H')
+
+    @staticmethod
+    def clear_previous_line():
+        print('\033[F')
+
     async def main(self):
         await self.login()
         print('\033[2J')
         num_of_options = 0
+        market_open = False
+        options_stats_len = 0
         while True:
             options_dict, ticker_instrument_dict = await self.get_option_positions_from_account()
             # print('\033[2J')
@@ -64,9 +75,11 @@ class Usage(Robinhood):
             total_value = 0
             total_print = []
             num_of_new_options = len(sorted_options)
+            if market_open != self.is_market_open:
+                self.reset_screen
+                market_open = self.is_market_open
             if num_of_new_options != num_of_options:
-                print('\033[2J')
-                print('\033[H')
+                self.reset_screen()
                 num_of_options = num_of_new_options
             for index, stats in enumerate(sorted_options):
                 right_now = datetime.now(tz=gettz('America/New_York'))
@@ -120,8 +133,13 @@ class Usage(Robinhood):
                 to_printout += Back.RESET
 
                 total_print.append(to_printout + Back.RESET)
-            print('\n'.join(total_print) + '\n' +
-                  f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]")
+            options_stats = '\n'.join(
+                total_print) + '\n' + f"[Total Value: {total_value:10.2f}] [Total Profits: {total_from_profits:10.2f}] [Daily Profits: {total_daily_profit:.2f}]"
+            len_options_stats = len(options_stats)
+            if options_stats_len != len_options_stats:
+                self.clear_previous_line()
+                options_stats_len = len_options_stats
+            print(options_stats)
             sleep(.5 if self.is_market_open() else 5)
 
 
